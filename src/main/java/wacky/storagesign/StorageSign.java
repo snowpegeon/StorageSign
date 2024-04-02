@@ -76,7 +76,7 @@ public class StorageSign {
         else if(line2.length == 2) damage = NumberConversions.toShort(line2[1]);
         else if(mat== Material.STONE_SLAB )  mat = Material.SMOOTH_STONE_SLAB;//1.13の滑らかハーフと1.14の石ハーフ区別
 		 
-        amount = NumberConversions.toInt(sign.getLine(2));
+        amount = NumberConversions.toInt(sign.getSide(Side.FRONT).getLine(2));
         isEmpty = amount == 0;
         stack = 1;
 
