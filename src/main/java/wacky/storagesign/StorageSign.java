@@ -40,7 +40,9 @@ public class StorageSign {
     			ench = ei.getEnchantType();
     		}
     		else if(mat == Material.POTION || mat == Material.SPLASH_POTION || mat == Material.LINGERING_POTION){
-    			PotionInfo pi = new PotionInfo(mat, str[0].split(":"));
+//    			PotionInfo pi = new PotionInfo(mat, str[0].split(":"));
+                String[] potionStr = str[0].split(":");
+                PotionInfo pi = new PotionInfo(mat, str[0],str[1], str[2]);
     			mat = pi.getMaterial();
     			damage = pi.getDamage();
     			pot = pi.getPotionType();
@@ -68,7 +70,8 @@ public class StorageSign {
         	ench = ei.getEnchantType();
         }
         else if(mat == Material.POTION || mat == Material.SPLASH_POTION || mat == Material.LINGERING_POTION){
-			PotionInfo pi = new PotionInfo(mat, line2);
+//			PotionInfo pi = new PotionInfo(mat, line2);
+            PotionInfo pi = new PotionInfo(mat, line2[0],line2[1], line2[2]);
 			mat = pi.getMaterial();
 			damage = pi.getDamage();
 			pot = pi.getPotionType();
@@ -199,11 +202,7 @@ public class StorageSign {
 
         else if (mat == Material.POTION || mat == Material.SPLASH_POTION || mat == Material.LINGERING_POTION)
         {
-        	String prefix = "";
-        	if(mat == Material.SPLASH_POTION) prefix = "S";
-        	else if(mat == Material.LINGERING_POTION) prefix = "L";
-
-        	return prefix + "POTION:" + PotionInfo.getShortType(pot) +":" + damage;
+        	return PotionInfo.getSignData(mat, pot, damage);
         }
 
         int limit = 99;//リミットブレイク
@@ -226,7 +225,7 @@ public class StorageSign {
         if (isEmpty) list.add("Empty");
         else if (mat == Material.ENCHANTED_BOOK) list.add(mat.toString() + ":" + ench.getKey().getKey() + ":" + damage + " " + amount);
         else if (mat == Material.POTION || mat == Material.SPLASH_POTION || mat == Material.LINGERING_POTION){
-        	list.add(mat.toString() + ":" + pot.toString() + ":" + damage + " " + amount);
+        	list.add(PotionInfo.getTagData(mat, pot, damage, amount));
         }
         else list.add(getShortName() +" "+ amount);
         meta.setLore(list);
@@ -293,7 +292,8 @@ public class StorageSign {
         else if(mat == Material.POTION || mat == Material.SPLASH_POTION || mat == Material.LINGERING_POTION){
         	ItemStack item = new ItemStack(mat, 1);
         	PotionMeta potionMeta = (PotionMeta)item.getItemMeta();
-        	potionMeta.setBasePotionData(new PotionData(pot, damage == 1, damage == 2));
+//        	potionMeta.setBasePotionData(new PotionData(pot, damage == 1, damage == 2));
+            potionMeta.setBasePotionType(pot);
             item.setItemMeta(potionMeta);
             return item;
         }else if(mat == Material.FIREWORK_ROCKET){

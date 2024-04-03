@@ -1,5 +1,6 @@
 package wacky.storagesign;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -63,7 +64,7 @@ public class StorageSignCore extends JavaPlugin implements Listener{
 	public void onEnable() {
 		config = this.getConfig();
 		config.options().copyDefaults(true);
-		config.options().header("StorageSign Configuration");
+		config.options().setHeader(Arrays.asList("StorageSign Configuration"));
 		this.saveConfig();
 
 		//鯖別レシピが実装されたら
@@ -166,10 +167,10 @@ public class StorageSignCore extends JavaPlugin implements Listener{
 				{
 					storageSign.setMaterial(mat);
 					PotionMeta potionMeta = (PotionMeta)itemMainHand.getItemMeta();
-					PotionData potion = potionMeta.getBasePotionData();
-					if(potion.isExtended()) storageSign.setDamage((short) 1);
-					if(potion.isUpgraded()) storageSign.setDamage((short) 2);
-					storageSign.setPotion(potion.getType());
+					PotionType pot = potionMeta.getBasePotionType();
+					if(pot.isExtendable()) storageSign.setDamage((short) 1);
+					if(pot.isUpgradeable()) storageSign.setDamage((short) 2);
+					storageSign.setPotion(pot);
 				}
 				else if (mat == Material.ENCHANTED_BOOK)
 				{
