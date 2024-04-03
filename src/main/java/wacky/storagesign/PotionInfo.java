@@ -10,6 +10,7 @@ import java.util.Arrays;
 
 public class PotionInfo {
 
+    private static String ENHANCE_NORMAL_CODE = "0";
     private static String ENHANCE_EXTENSION_CODE = "1";
     private static String ENHANCE_STRONG_CODE = "2";
     private static String ENHANCE_EXTENSION_PREF = "LONG_";
@@ -133,7 +134,7 @@ public class PotionInfo {
 
         // 表記上例外のケースたちの判定
         if (effName.equals(SHORT_NAME_HEAL)) {
-            if (enhance.isEmpty()) {
+            if (enhance.equals(ENHANCE_NORMAL_CODE)) {
                 return PotionType.INSTANT_HEAL;
             } else if (enhance.equals(ENHANCE_STRONG_CODE)) {
                 return PotionType.STRONG_HEALING;
@@ -141,7 +142,7 @@ public class PotionInfo {
                 throw new PotionException("治癒のポーションに対応する種類が存在しません");
             }
         } else if (effName.equals(SHORT_NAME_BREAT)) {
-            if (enhance.isEmpty()) {
+            if (enhance.equals(ENHANCE_NORMAL_CODE)) {
                 return PotionType.WATER_BREATHING;
             } else if (enhance.equals(ENHANCE_EXTENSION_CODE)) {
                 return PotionType.LONG_WATER_BREATHING;
@@ -149,7 +150,7 @@ public class PotionInfo {
                 throw new PotionException("水中呼吸のポーションに対応する種類が存在しません");
             }
         } else if (effName.equals(SHORT_NAME_DAMAG)) {
-            if (enhance.isEmpty()) {
+            if (enhance.equals(ENHANCE_NORMAL_CODE)) {
                 return PotionType.INSTANT_DAMAGE;
             } else if (enhance.equals(ENHANCE_STRONG_CODE)) {
                 return PotionType.STRONG_HARMING;
@@ -157,7 +158,7 @@ public class PotionInfo {
                 throw new PotionException("ダメージのポーションに対応する種類が存在しません");
             }
         } else if (effName.equals(SHORT_NAME_JUMP)) {
-            if (enhance.isEmpty()) {
+            if (enhance.equals(ENHANCE_NORMAL_CODE)) {
                 return PotionType.JUMP;
             } else if (enhance.equals(ENHANCE_EXTENSION_CODE)) {
                 return PotionType.LONG_LEAPING;
@@ -167,7 +168,7 @@ public class PotionInfo {
                 throw new PotionException("跳躍のポーションに対応する種類が存在しません");
             }
         } else if (effName.equals(SHORT_NAME_SPEED)) {
-            if (enhance.isEmpty()) {
+            if (enhance.equals(ENHANCE_NORMAL_CODE)) {
                 return PotionType.SPEED;
             } else if (enhance.equals(ENHANCE_EXTENSION_CODE)) {
                 return PotionType.LONG_SWIFTNESS;
