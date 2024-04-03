@@ -195,10 +195,10 @@ public class StorageSignCore extends JavaPlugin implements Listener{
 				{
 					storageSign.setMaterial(mat);
 					var meta = itemMainHand.getItemMeta();
-                    if (meta instanceof Damageable dam) {
+					if (meta instanceof Damageable dam) {
 						storageSign.setDamage((short) dam.getDamage());
 					}
-                }
+				}
 
 				for (int i=0; i<4; i++) sign.getSide(Side.FRONT).setLine(i, storageSign.getSigntext(i));
 				sign.update();
