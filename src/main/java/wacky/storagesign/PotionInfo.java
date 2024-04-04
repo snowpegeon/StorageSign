@@ -1,10 +1,11 @@
 package wacky.storagesign;
 
 import org.bukkit.Material;
-import org.bukkit.PortalType;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.NumberConversions;
+import org.slf4j.Logger;
 import wacky.storagesign.Exception.PotionException;
+import wacky.storagesign.Logging.SSLoggerFactory;
 
 import java.util.Arrays;
 
@@ -31,6 +32,7 @@ public class PotionInfo {
     protected Material mat;
     protected PotionType pot;
     protected short damage = 0;
+    protected Logger logger;
 
     // 旧メソッド
 	public PotionInfo(Material mat, String[] str){
@@ -98,6 +100,9 @@ public class PotionInfo {
 	}
 
     public PotionInfo(Material material, String type, String effName, String enhance) {
+        SSLoggerFactory factory = new SSLoggerFactory("");
+        logger = factory.getLogger();
+        logger.debug("PotionItnfoConstructor:Start");
         this.mat = material;
 
         // ポーション種別の設定
@@ -109,7 +114,7 @@ public class PotionInfo {
         }
 
         this.pot = getType(effName, enhance);
-        this.damage = NumberConversions.toShort(damage);
+        this.damage = NumberConversions.toShort(enhance);
 
         // 一応前のロジックも入れておく
         if (damage % 8192 > 64 && pot.isExtendable()) this.damage = 1;//延長
@@ -219,9 +224,9 @@ public class PotionInfo {
             // それ以外のもの
             // 延長・強化のプレフィックス除去
             if (name.startsWith(ENHANCE_EXTENSION_PREF)) {
-                name = name.substring(name.length() - ENHANCE_EXTENSION_PREF.length());
+                name = name.substring(ENHANCE_EXTENSION_PREF.length());
             } else if (name.startsWith(ENHANCE_STRONG_PREF)) {
-                name = name.substring(name.length() - ENHANCE_STRONG_PREF.length());
+                name = name.substring(ENHANCE_STRONG_PREF.length());
             }
 
             // 5文字以内の名前なら、そのまま使う。それ以外なら５文字に切り出す
@@ -238,11 +243,21 @@ public class PotionInfo {
         if (mat == Material.SPLASH_POTION) prefix = PotionInfo.TYPE_SPLASH_PREF;
         else if (mat == Material.LINGERING_POTION) prefix = PotionInfo.TYPE_LINGERING_PREF;
 
-        return prefix + "POTION:" + PotionInfo.getShortType(pot) + ":" + damage;
+        return prefix + "POTION:" + PotionInfo.getShortName(pot) + ":" + damage;
     }
 
     public static String getTagData(Material mat, PotionType pot, short damage, int amount) {
         return mat.toString() + ":" + pot.toString() + ":" + damage + " " + amount;
+    }
+
+    public static String getPotionTypeCode(PotionType pot){
+        String name = pot.toString();
+        if (name.startsWith(ENHANCE_EXTENSION_PREF)) {
+            return ENHANCE_EXTENSION_CODE;
+        } else if (name.startsWith(ENHANCE_STRONG_PREF)) {
+            return ENHANCE_STRONG_CODE;
+        }
+        return ENHANCE_NORMAL_CODE;
     }
 
 	public short getDamage() {

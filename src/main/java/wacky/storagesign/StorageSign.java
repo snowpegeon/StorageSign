@@ -42,7 +42,7 @@ public class StorageSign {
     		else if(mat == Material.POTION || mat == Material.SPLASH_POTION || mat == Material.LINGERING_POTION){
 //    			PotionInfo pi = new PotionInfo(mat, str[0].split(":"));
                 String[] potionStr = str[0].split(":");
-                PotionInfo pi = new PotionInfo(mat, str[0],str[1], str[2]);
+                PotionInfo pi = new PotionInfo(mat, potionStr[0],potionStr[1], potionStr[2]);
     			mat = pi.getMaterial();
     			damage = pi.getDamage();
     			pot = pi.getPotionType();

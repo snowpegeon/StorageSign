@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE logback>
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy/MM/dd HH:mm:ss} %-5level [%thread] - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <logger name="SSLoggerFactoryTRACE" level="trace" />
+    <logger name="SSLoggerFactoryDEBUG" level="debug" />
+    <logger name="SSLoggerFactoryINFO" level="info" />
+    <logger name="SSLoggerFactoryWARN" level="warn" />
+    <logger name="SSLoggerFactoryERROR" level="error" />
+    <root>
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>

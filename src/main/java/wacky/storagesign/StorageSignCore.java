@@ -50,14 +50,15 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
-
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import wacky.storagesign.Logging.SSLoggerFactory;
 
 public class StorageSignCore extends JavaPlugin implements Listener{
 
 	FileConfiguration config;
+	public Logger logger;
+	public SSLoggerFactory logFactory;
     static BannerMeta ominousBannerMeta;
 
 	@Override
@@ -66,6 +67,10 @@ public class StorageSignCore extends JavaPlugin implements Listener{
 		config.options().copyDefaults(true);
 		config.options().setHeader(Arrays.asList("StorageSign Configuration"));
 		this.saveConfig();
+
+		// ログ取得
+		logFactory = new SSLoggerFactory(config.getString("log-level"));
+		logger = logFactory.getLogger();
 
 		//鯖別レシピが実装されたら
 		Material[] sign = {Material.OAK_SIGN,Material.BIRCH_SIGN,Material.SPRUCE_SIGN,Material.JUNGLE_SIGN,Material.ACACIA_SIGN,Material.DARK_OAK_SIGN,Material.CRIMSON_SIGN,Material.WARPED_SIGN,Material.MANGROVE_SIGN,Material.CHERRY_SIGN,Material.BAMBOO_SIGN};
@@ -168,8 +173,7 @@ public class StorageSignCore extends JavaPlugin implements Listener{
 					storageSign.setMaterial(mat);
 					PotionMeta potionMeta = (PotionMeta)itemMainHand.getItemMeta();
 					PotionType pot = potionMeta.getBasePotionType();
-					if(pot.isExtendable()) storageSign.setDamage((short) 1);
-					if(pot.isUpgradeable()) storageSign.setDamage((short) 2);
+					storageSign.setDamage(Short.parseShort(PotionInfo.getPotionTypeCode(pot)));
 					storageSign.setPotion(pot);
 				}
 				else if (mat == Material.ENCHANTED_BOOK)

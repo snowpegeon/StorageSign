@@ -1,6 +1,8 @@
 #StorageSign Configuration
 no-permisson: You don't have permission
 
+log-level: DEBUG
+#log-level: WARN
 manual-import: true
 manual-export: true
 auto-import: true
