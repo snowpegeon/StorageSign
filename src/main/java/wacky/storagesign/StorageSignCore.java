@@ -122,7 +122,7 @@ public class StorageSignCore extends JavaPlugin implements Listener{
 		Player player = event.getPlayer();
 		Block block;
 		//手持ちがブロックだと叩いた看板を取得できないことがあるとか
-		if (event.isCancelled() && event.getAction() == Action.RIGHT_CLICK_AIR) {
+		if (event.useInteractedBlock() == Result.DENY && event.getAction() == Action.RIGHT_CLICK_AIR) {
 			try {
 				block = player.getTargetBlock((Set) null, 3);
 			} catch (IllegalStateException ex) {
