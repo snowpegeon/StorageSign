@@ -1,6 +1,7 @@
 package wacky.storagesign;
 
 import org.bukkit.Material;
+import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.util.NumberConversions;
 
@@ -18,7 +19,7 @@ public class EnchantInfo {
 
 	private Enchantment getEnch(String substring) {
 		//後ろ切れても可.
-		for(Enchantment e : Enchantment.values()) {
+		for(Enchantment e : Registry.ENCHANTMENT) {
 			if(e.getKey().getKey().startsWith(substring)) return e;
 		}
 		return null;
