@@ -7,11 +7,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.block.sign.Side;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BannerMeta;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
-import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.inventory.meta.*;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.NumberConversions;
@@ -309,7 +305,13 @@ public class StorageSign {
         	
         }
         if(damage == 0) return new ItemStack(mat, 1);//大半はダメージなくなった
-        return new ItemStack(mat, 1, damage);//ツール系のみダメージあり
+        var itemStack = new ItemStack(mat, 1);
+        var meta = itemStack.getItemMeta();
+        if (meta instanceof Damageable dam) {
+            dam.setDamage(damage);
+            itemStack.setItemMeta(meta);
+        }
+        return itemStack;//ツール系のみダメージあり
     }
 
 	//回収可能か判定、エンチャ本は本自身の合成回数を問わない

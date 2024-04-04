@@ -45,10 +45,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.meta.BannerMeta;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
-import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.inventory.meta.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionType;
 import org.slf4j.Logger;
@@ -201,7 +198,10 @@ public class StorageSignCore extends JavaPlugin implements Listener{
 				else
 				{
 					storageSign.setMaterial(mat);
-					storageSign.setDamage(itemMainHand.getDurability());
+					var meta = itemMainHand.getItemMeta();
+					if (meta instanceof Damageable dam) {
+						storageSign.setDamage((short) dam.getDamage());
+					}
 				}
 
 				for (int i=0; i<4; i++) sign.getSide(Side.FRONT).setLine(i, storageSign.getSigntext(i));
