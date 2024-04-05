@@ -48,14 +48,12 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionType;
-import org.slf4j.Logger;
-import wacky.storagesign.Logging.SSLoggerFactory;
+import wacky.storagesign.Logging.SSLogger;
 
 public class StorageSignCore extends JavaPlugin implements Listener{
 
 	FileConfiguration config;
-	public Logger logger;
-	public SSLoggerFactory logFactory;
+	public SSLogger logger;
     static BannerMeta ominousBannerMeta;
 
 	@Override
@@ -66,8 +64,14 @@ public class StorageSignCore extends JavaPlugin implements Listener{
 		this.saveConfig();
 
 		// ログ取得
-		logFactory = new SSLoggerFactory(config.getString("log-level"));
-		logger = logFactory.getLogger();
+		logger = new SSLogger(config.getString("log-level"));
+//
+//		logger.fatal("serverLog");
+//		logger.error("errorLog");
+//		logger.warn("warnLog");
+//		logger.info("infoLog");
+//		logger.debug("debugLog");
+//		logger.trace("traceLog");
 
 		//鯖別レシピが実装されたら
 		Material[] sign = {Material.OAK_SIGN,Material.BIRCH_SIGN,Material.SPRUCE_SIGN,Material.JUNGLE_SIGN,Material.ACACIA_SIGN,Material.DARK_OAK_SIGN,Material.CRIMSON_SIGN,Material.WARPED_SIGN,Material.MANGROVE_SIGN,Material.CHERRY_SIGN,Material.BAMBOO_SIGN};

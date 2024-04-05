@@ -3,9 +3,8 @@ package wacky.storagesign;
 import org.bukkit.Material;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.NumberConversions;
-import org.slf4j.Logger;
 import wacky.storagesign.Exception.PotionException;
-import wacky.storagesign.Logging.SSLoggerFactory;
+import wacky.storagesign.Logging.SSLogger;
 
 import java.util.Arrays;
 
@@ -32,7 +31,7 @@ public class PotionInfo {
     protected Material mat;
     protected PotionType pot;
     protected short damage = 0;
-    protected Logger logger;
+    protected SSLogger logger;
 
     // 旧メソッド
 	public PotionInfo(Material mat, String[] str){
@@ -100,8 +99,7 @@ public class PotionInfo {
 	}
 
     public PotionInfo(Material material, String type, String effName, String enhance) {
-        SSLoggerFactory factory = new SSLoggerFactory("");
-        logger = factory.getLogger();
+        logger = new SSLogger("");
         logger.debug("PotionItnfoConstructor:Start");
         this.mat = material;
 
