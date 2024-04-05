@@ -7,7 +7,9 @@ import org.slf4j.Logger;
 import wacky.storagesign.Exception.PotionException;
 import wacky.storagesign.Logging.SSLoggerFactory;
 
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
 
 public class PotionInfo {
 
@@ -21,11 +23,11 @@ public class PotionInfo {
     private static String SHORT_NAME_DAMAG = "DAMAG";
     private static String SHORT_NAME_JUMP = "JUMP";
     private static String SHORT_NAME_SPEED = "SPEED";
-    private static PotionType[] HEAL_POTIONS = {PotionType.INSTANT_HEAL, PotionType.STRONG_HEALING};
-    private static PotionType[] BREATH_POTIONS = {PotionType.WATER_BREATHING, PotionType.LONG_WATER_BREATHING};
-    private static PotionType[] DAMAGE_POTIONS = {PotionType.INSTANT_DAMAGE, PotionType.STRONG_HARMING};
-    private static PotionType[] JUMP_POTIONS = {PotionType.JUMP, PotionType.LONG_LEAPING, PotionType.STRONG_LEAPING};
-    private static PotionType[] SPEED_POTIONS = {PotionType.SPEED, PotionType.LONG_SWIFTNESS, PotionType.STRONG_SWIFTNESS};
+    private static final Set<PotionType> HEAL_POTIONS = Collections.unmodifiableSet(EnumSet.of(PotionType.INSTANT_HEAL, PotionType.STRONG_HEALING));
+    private static final Set<PotionType> BREATH_POTIONS = Collections.unmodifiableSet(EnumSet.of(PotionType.WATER_BREATHING, PotionType.LONG_WATER_BREATHING));
+    private static final Set<PotionType> DAMAGE_POTIONS = Collections.unmodifiableSet(EnumSet.of(PotionType.INSTANT_DAMAGE, PotionType.STRONG_HARMING));
+    private static final Set<PotionType> JUMP_POTIONS = Collections.unmodifiableSet(EnumSet.of(PotionType.JUMP, PotionType.LONG_LEAPING, PotionType.STRONG_LEAPING));
+    private static final Set<PotionType> SPEED_POTIONS = Collections.unmodifiableSet(EnumSet.of(PotionType.SPEED, PotionType.LONG_SWIFTNESS, PotionType.STRONG_SWIFTNESS));
     protected static String TYPE_SPLASH_PREF = "S";
     protected static String TYPE_LINGERING_PREF = "L";
 
@@ -210,15 +212,15 @@ public class PotionInfo {
         String name = pot.toString();
 
         // 特殊命名ルールの取り出し
-        if (Arrays.asList(HEAL_POTIONS).contains(pot)) {
+        if (HEAL_POTIONS.contains(pot)) {
             return SHORT_NAME_HEAL;
-        } else if (Arrays.asList(BREATH_POTIONS).contains(pot)) {
+        } else if (BREATH_POTIONS.contains(pot)) {
             return SHORT_NAME_BREAT;
-        } else if (Arrays.asList(DAMAGE_POTIONS).contains(pot)) {
+        } else if (DAMAGE_POTIONS.contains(pot)) {
             return SHORT_NAME_DAMAG;
-        } else if (Arrays.asList(JUMP_POTIONS).contains(pot)) {
+        } else if (JUMP_POTIONS.contains(pot)) {
             return SHORT_NAME_JUMP;
-        } else if (Arrays.asList(SPEED_POTIONS).contains(pot)) {
+        } else if (SPEED_POTIONS.contains(pot)) {
             return SHORT_NAME_SPEED;
         } else {
             // それ以外のもの
