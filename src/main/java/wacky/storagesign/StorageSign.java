@@ -163,7 +163,6 @@ public class StorageSign {
 
   }
 
-  //変換
   /**
    * 指定された文字列でMaterialに変換します.
    *
@@ -172,12 +171,16 @@ public class StorageSign {
    * @return Material
    * */
   protected Material getMaterial(String str) {
-    if (str.matches("")) {
-      return Material.AIR;
-
     //    if (str.matches("EmptySign")) {
     //        return Material.END_PORTAL;
     //    }
+    //if (str.startsWith("REDSTONE_TORCH")) return Material.REDSTONE_TORCH;
+    //if (str.startsWith("RS_COMPARATOR")) return Material.COMPARATOR;
+    //if (str.startsWith("STAINGLASS_P")) return Material.LEGACY_STAINED_GLASS_PANE;
+    //if (str.startsWith("BROWN_MUSH_B")) return Material.BROWN_MUSHROOM_BLOCK;
+    //if (str.startsWith("RED_MUSH_BLO")) return Material.RED_MUSHROOM_BLOCK;
+    if (str.matches("")) {
+      return Material.AIR;
 
     } else if (str.matches("EmptySign")
         || str.matches("OakStorageSign")) {
@@ -223,47 +226,32 @@ public class StorageSign {
     } else if (str.matches("BambooStorageSign")) {
       this.damage = 1;
       return Material.BAMBOO_SIGN;
-
     }
-
     if (str.matches("HorseEgg")) {
       this.damage = 1;
       return Material.END_PORTAL;
       //ガスト卵でよくね？
     }
-
-    //if (str.startsWith("REDSTONE_TORCH")) return Material.REDSTONE_TORCH;
-    //if (str.startsWith("RS_COMPARATOR")) return Material.COMPARATOR;
-    //if (str.startsWith("STAINGLASS_P")) return Material.LEGACY_STAINED_GLASS_PANE;
-    //if (str.startsWith("BROWN_MUSH_B")) return Material.BROWN_MUSHROOM_BLOCK;
-    //if (str.startsWith("RED_MUSH_BLO")) return Material.RED_MUSHROOM_BLOCK;
-
     //1.13→1.14用
     if (str.startsWith("SIGN")) {
       return Material.OAK_SIGN;
     }
-
     if (str.startsWith("ROSE_RED")) {
       return Material.RED_DYE;
     }
-
     if (str.startsWith("DANDELION_YELLOW")) {
       return Material.YELLOW_DYE;
     }
-
     if (str.startsWith("CACTUS_GREEN")) {
       return Material.GREEN_DYE;
     }
-
     //省略用
     if (str.startsWith("ENCHBOOK")) {
       return Material.ENCHANTED_BOOK;
     }
-
     if (str.startsWith("SPOTION")) {
       return Material.SPLASH_POTION;
     }
-
     if (str.startsWith("LPOTION")) {
       return Material.LINGERING_POTION;
     }
@@ -371,10 +359,8 @@ public class StorageSign {
         || this.mat == Material.LINGERING_POTION) {
       return PotionInfo.getSignData(this.mat, pot, this.damage);
     }
-
     //リミットブレイク
     int limit = 99;
-
     if (this.damage != 0) {
       limit -= String.valueOf(this.damage).length() + 1;
     }
@@ -594,7 +580,6 @@ public class StorageSign {
 
     var itemStack = new ItemStack(this.mat, 1);
     var meta = itemStack.getItemMeta();
-
     if (meta instanceof Damageable dam) {
       dam.setDamage(this.damage);
       itemStack.setItemMeta(meta);
@@ -604,7 +589,6 @@ public class StorageSign {
     return itemStack;
   }
 
-  //回収可能か判定、エンチャ本は本自身の合成回数を問わない
   /**
    * 回収可能か判定、エンチャ本は本自身の合成回数を問わない.
    *
