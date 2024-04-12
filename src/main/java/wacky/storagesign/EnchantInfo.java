@@ -1,5 +1,6 @@
 package wacky.storagesign;
 
+import com.github.teruteru128.logger.Logger;
 import org.bukkit.Material;
 import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
@@ -10,11 +11,14 @@ public class EnchantInfo {
 	protected Material mat;
 	protected Enchantment ench;
 	protected short damage = 0;
+	private Logger _logger;
 
-	public EnchantInfo(Material mat, String[] str){
+	public EnchantInfo(Material mat, String[] str, Logger logger){
 		this.mat = mat;
-			ench = getEnch(str[1]);
-			damage = NumberConversions.toShort(str[2]);
+		this._logger = logger;
+
+		ench = getEnch(str[1]);
+		damage = NumberConversions.toShort(str[2]);
 	}
 
 	private Enchantment getEnch(String substring) {

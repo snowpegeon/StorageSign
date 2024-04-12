@@ -1,5 +1,6 @@
 package wacky.storagesign;
 
+import com.github.teruteru128.logger.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,11 +38,16 @@ public class StorageSign {
   /**  */
   protected boolean isEmpty;
 
+  /**  */
+  private Logger _logger;
+
   //StorageSignだと確認してから使っちくりー
   /** 
    * 
    * */
-  public StorageSign(ItemStack item) {
+  public StorageSign(ItemStack item, Logger logger) {
+    this._logger = logger;
+
     String[] str = item.getItemMeta().getLore().get(0).split(" ");
 
     if (str[0].matches("Empty")) {
@@ -51,7 +57,7 @@ public class StorageSign {
       this.mat = getMaterial(str[0].split(":")[0]);
 
       if (this.mat == Material.ENCHANTED_BOOK) {
-        EnchantInfo ei = new EnchantInfo(this.mat, str[0].split(":"));
+        EnchantInfo ei = new EnchantInfo(this.mat, str[0].split(":"), logger);
         this.damage = ei.getDamage();
         this.ench = ei.getEnchantType();
 
@@ -60,7 +66,7 @@ public class StorageSign {
           || this.mat == Material.LINGERING_POTION) {
         // PotionInfo pi = new PotionInfo(mat, str[0].split(":"));
         String[] potionStr = str[0].split(":");
-        PotionInfo pi = new PotionInfo(this.mat, potionStr[0], potionStr[1], potionStr[2]);
+        PotionInfo pi = new PotionInfo(this.mat, potionStr[0], potionStr[1], potionStr[2], logger);
         this.mat = pi.getMaterial();
         this.damage = pi.getDamage();
         this.pot = pi.getPotionType();
@@ -88,7 +94,7 @@ public class StorageSign {
   /**
    * 
    * */
-  public StorageSign(Sign sign, Material signmat) {
+  public StorageSign(Sign sign, Material signmat, Logger logger) {
     //上と統合したい
     String[] line2 = sign.getSide(Side.FRONT).getLine(1).trim().split(":");
     this.mat = getMaterial(line2[0]);
@@ -96,7 +102,7 @@ public class StorageSign {
       || this.mat == Material.AIR);
 
     if (this.mat == Material.ENCHANTED_BOOK) {
-      EnchantInfo ei = new EnchantInfo(this.mat, line2);
+      EnchantInfo ei = new EnchantInfo(this.mat, line2, logger);
       this.damage = ei.getDamage();
       this.ench = ei.getEnchantType();
 
@@ -104,7 +110,7 @@ public class StorageSign {
         || this.mat == Material.SPLASH_POTION
         || this.mat == Material.LINGERING_POTION) {
       // PotionInfo pi = new PotionInfo(mat, line2);
-      PotionInfo pi = new PotionInfo(this.mat, line2[0], line2[1], line2[2]);
+      PotionInfo pi = new PotionInfo(this.mat, line2[0], line2[1], line2[2], logger);
       this.mat = pi.getMaterial();
       this.damage = pi.getDamage();
       this.pot = pi.getPotionType();

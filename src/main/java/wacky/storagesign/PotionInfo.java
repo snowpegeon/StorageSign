@@ -1,10 +1,11 @@
 package wacky.storagesign;
 
 import org.bukkit.Material;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.NumberConversions;
 import wacky.storagesign.Exception.PotionException;
-import wacky.storagesign.Logging.SSLogger;
+import com.github.teruteru128.logger.Logger;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -33,7 +34,7 @@ public class PotionInfo {
     protected Material mat;
     protected PotionType pot;
     protected short damage = 0;
-    protected SSLogger logger;
+    protected Logger logger;
 
     // 旧メソッド
 	public PotionInfo(Material mat, String[] str){
@@ -100,8 +101,9 @@ public class PotionInfo {
 		}
 	}
 
-    public PotionInfo(Material material, String type, String effName, String enhance) {
-        logger = new SSLogger("");
+    public PotionInfo(Material material, String type, String effName, String enhance, Logger logger) {
+
+        this.logger = logger;
         logger.debug("PotionItnfoConstructor:Start");
         this.mat = material;
 

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import java.util.logging.Level;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.GameMode;
@@ -48,13 +49,14 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionType;
-import wacky.storagesign.Logging.SSLogger;
+
+import com.github.teruteru128.logger.Logger;
 
 public class StorageSignCore extends JavaPlugin implements Listener{
 
 	FileConfiguration config;
-	public SSLogger logger;
-    static BannerMeta ominousBannerMeta;
+	public Logger logger;
+	static BannerMeta ominousBannerMeta;
 
 	@Override
 	public void onEnable() {
@@ -63,9 +65,13 @@ public class StorageSignCore extends JavaPlugin implements Listener{
 		config.options().setHeader(Arrays.asList("StorageSign Configuration"));
 		this.saveConfig();
 
+		// ロガーの初期設定
+		String logLevel = config.getString("log-level");
 		// ログ取得
-		logger = new SSLogger(config.getString("log-level"));
-//
+		Logger.register(this, logLevel);
+		logger = Logger.getInstance(this);
+
+		logger.debug("onEnable:Start");
 //		logger.fatal("serverLog");
 //		logger.error("errorLog");
 //		logger.warn("warnLog");
@@ -76,19 +82,29 @@ public class StorageSignCore extends JavaPlugin implements Listener{
 		//鯖別レシピが実装されたら
 		Material[] sign = {Material.OAK_SIGN,Material.BIRCH_SIGN,Material.SPRUCE_SIGN,Material.JUNGLE_SIGN,Material.ACACIA_SIGN,Material.DARK_OAK_SIGN,Material.CRIMSON_SIGN,Material.WARPED_SIGN,Material.MANGROVE_SIGN,Material.CHERRY_SIGN,Material.BAMBOO_SIGN};
 		for(int i= 0 ;i<11;i++) {
-			
+			logger.trace("signRecipi name:" + sign[i]);
+
 		ShapedRecipe storageSignRecipe = new ShapedRecipe(new NamespacedKey(this,"ssr"+i),StorageSign.emptySign(sign[i]));
+		logger.trace("storageSignRecipe:" + storageSignRecipe);
 		//ShapedRecipe storageSignRecipe = new ShapedRecipe(StorageSign.emptySign());
 		storageSignRecipe.shape("CCC","CSC","CHC");
 		storageSignRecipe.setIngredient('C', Material.CHEST);
 		storageSignRecipe.setIngredient('S', sign[i]);
+
+		logger.trace("hardrecipe:" + config.getBoolean("hardrecipe"));
 		if (config.getBoolean("hardrecipe")) storageSignRecipe.setIngredient('H', Material.ENDER_CHEST);
 		else storageSignRecipe.setIngredient('H', Material.CHEST);
 		getServer().addRecipe(storageSignRecipe);
+			logger.trace(sign[i] + "StorageSign Recipe added.");
 		}
 
+		logger.trace("setEvent");
 		getServer().getPluginManager().registerEvents(this, this);
-		if(config.getBoolean("no-bud")) new SignPhysicsEvent(this);
+
+		logger.trace("no-bud:" + config.getBoolean("no-bud"));
+		if(config.getBoolean("no-bud")) new SignPhysicsEvent(this, logger);
+
+		logger.debug("onEnable:End");
 	}
 
 	@Override
@@ -96,81 +112,170 @@ public class StorageSignCore extends JavaPlugin implements Listener{
 
 	
 	public boolean isStorageSign(ItemStack item) {
-		if (item == null) return false;
+		logger.debug("isStorageSign(ItemStack):Start");
+		if (item == null) {
+			logger.debug("item is null.");
+			return false;
+		}
+
+		logger.trace("isSignPost:" + isSignPost(item.getType()));
 		if(isSignPost(item.getType())) {
-			
-			if (!item.getItemMeta().hasDisplayName()) return false;
-			if (!item.getItemMeta().getDisplayName().matches("StorageSign")) return false;
+
+			logger.trace("!item.getItemMeta().hasDisplayName(): " + !item.getItemMeta().hasDisplayName());
+			if (!item.getItemMeta().hasDisplayName()) {
+				logger.debug("itemMeta hasn't displayName.");
+				return false;
+			}
+			logger.trace("!item.getItemMeta().getDisplayName().matches(\"StorageSign\")" + !item.getItemMeta().getDisplayName().matches("StorageSign"));
+			if (!item.getItemMeta().getDisplayName().matches("StorageSign")) {
+				logger.debug("itemMetaName hasn't StorageSign.");
+				return false;
+			}
+			logger.trace("item.getItemMeta().hasLore()" + item.getItemMeta().hasLore());
 			return item.getItemMeta().hasLore();
 		}
+		logger.debug("isSignPost is false.");
 		return false;
 	}
 
 	public boolean isStorageSign(Block block) {
-		if(isSignPost(block.getType()) || isWallSign(block.getType())) {			
+		logger.debug("isStorageSign(Block):Start");
+
+		logger.trace("block.getType(): " + block.getType());
+		logger.trace("isSignPost(block.getType()): " + isSignPost(block.getType()));
+		logger.trace("isWallSign(block.getType()) :" + isWallSign(block.getType()));
+		if(isSignPost(block.getType()) || isWallSign(block.getType())) {
+			logger.debug("This Block is Sign.");
 			Sign sign = (Sign) block.getState();
-			if (sign.getSide(Side.FRONT).getLine(0).matches("StorageSign")) return true;
+
+			logger.trace("sign.getSide(Side.FRONT).getLine(0).matches(\"StorageSign\"): " + sign.getSide(Side.FRONT).getLine(0).matches("StorageSign"));
+			if (sign.getSide(Side.FRONT).getLine(0).matches("StorageSign")) {
+				logger.debug("This Sign is StorageSign.");
+				return true;
+			}
 		}
+
+		logger.debug("This Block isn't StorageSign.");
 		return false;
 	}
 
 	public boolean isHorseEgg(ItemStack item){
-		if(item.getType() != Material.GHAST_SPAWN_EGG) return false;
-		if(item.getItemMeta().hasLore()) return true;
+		logger.debug("isHorseEgg: Start");
+		if(item.getType() != Material.GHAST_SPAWN_EGG) {
+			logger.debug("This item isn't HorseEgg.");
+			return false;
+		}
+		if(item.getItemMeta().hasLore()) {
+			logger.debug("This item is HorseEgg.");
+			return true;
+		}
+
+		logger.debug("This item isn't HorseEgg.");
 		return false;
 	}
 
 
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
+		logger.debug("onPlayerInteract: Start");
 		Player player = event.getPlayer();
 		Block block;
+
+		logger.trace("event.useInteractedBlock() == Result.DENY :" + (event.useInteractedBlock() == Result.DENY ));
+		logger.trace("event.getAction() == Action.RIGHT_CLICK_AIR:" + (event.getAction() == Action.RIGHT_CLICK_AIR));
 		//手持ちがブロックだと叩いた看板を取得できないことがあるとか
 		if (event.useInteractedBlock() == Result.DENY && event.getAction() == Action.RIGHT_CLICK_AIR) {
 			try {
+				logger.debug("try getTargetBlock.");
 				block = player.getTargetBlock((Set) null, 3);
 			} catch (IllegalStateException ex) {
+				java.util.logging.Logger log = logger.getLogger();
+				log.log(Level.SEVERE, "getTargetBlock is Error. Trace", ex);
 				return;
 			}
 		} else {
+			logger.debug("ClickedBlock :" + event.getClickedBlock());
 			block = event.getClickedBlock();
 		}
-		if (block == null) return;
-		if(player.getGameMode() == GameMode.SPECTATOR) return;
-		if (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR) {
+		logger.trace("block == null:" + (block == null));
+		if (block == null) {
+			logger.debug("block is null.");
+			return;
+		}
 
-			if (!isStorageSign(block)) return;
-			if(event.getHand() == EquipmentSlot.OFF_HAND) return;//一応
+		logger.trace("player.getGameMode() == GameMode.SPECTATOR:" + (player.getGameMode() == GameMode.SPECTATOR));
+		if(player.getGameMode() == GameMode.SPECTATOR) {
+			logger.debug("UserGameMode is Spectator.");
+			return;
+		}
+
+		logger.trace("event.getAction():" + event.getAction());
+		logger.trace("event.getAction() == Action.RIGHT_CLICK_BLOCK:" + (event.getAction() == Action.RIGHT_CLICK_BLOCK));
+		logger.trace("event.getAction() == Action.RIGHT_CLICK_AIR:" + (event.getAction() == Action.RIGHT_CLICK_AIR));
+		if (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR) {
+			logger.debug("UserAction is RIGHT_CLICK_BLOCK or RIGHT_CLICK_AIR");
+
+			if (!isStorageSign(block)) {
+				logger.debug("This Block not StorageSign.");
+				return;
+			}
+			if(event.getHand() == EquipmentSlot.OFF_HAND) {
+				logger.debug("This hand is OFF_HAND.");
+				//一応
+				return;
+			}
 			event.setUseItemInHand(Result.DENY);
 			event.setUseInteractedBlock(Result.DENY);
+
+			logger.trace("!player.hasPermission(\"storagesign.use\") + " + !player.hasPermission("storagesign.use"));
 			if (!player.hasPermission("storagesign.use")) {
+				logger.debug("This User hasn't permission.storagesign.use");
 				player.sendMessage(ChatColor.RED + config.getString("no-permisson"));
 				event.setCancelled(true);
 				return;
 			}
 			Sign sign = (Sign) block.getState();
-			StorageSign storageSign = new StorageSign(sign,block.getType());
+			StorageSign storageSign = new StorageSign(sign,block.getType(), logger);
 			ItemStack itemMainHand = event.getItem();
 			Material mat;
 
+			logger.trace("sign:" + sign);
+			logger.trace("storageSign:" + storageSign);
+			logger.trace("itemMainHand:" + itemMainHand);
+			logger.trace("storageSign.getMaterial() == null:" + (storageSign.getMaterial() == null));
+			logger.trace("storageSign.getMaterial() == Material.AIR:" + (storageSign.getMaterial() == Material.AIR));
 			//アイテム登録
 			if (storageSign.getMaterial() == null || storageSign.getMaterial() == Material.AIR) {
-				if(itemMainHand == null) return;//申し訳ないが素手はNG
+				logger.debug("SS Material Regist.");
+				logger.trace("itemMainHand:" + itemMainHand);
+				logger.trace("itemMainHand == null:" + (itemMainHand == null));
+				if(itemMainHand == null) {
+					logger.debug("User MainHand is Null.");
+					//申し訳ないが素手はNG
+					return;
+				}
 				mat = itemMainHand.getType();
+				logger.trace("isStorageSign(itemMainHand):" + isStorageSign(itemMainHand));
+				logger.trace("isHorseEgg(itemMainHand):" + isHorseEgg(itemMainHand));
+				logger.trace("mat:" + mat);
 				if (isStorageSign(itemMainHand)) {
+					logger.debug("main hand has StorageSign.");
 					storageSign.setMaterial(mat);
 					storageSign.setDamage((short) 1);
 				}
 				else if (isHorseEgg(itemMainHand)){
+					logger.debug("main hand has HorseEgg.");
 					storageSign.setMaterial(Material.END_PORTAL);
 					storageSign.setDamage((short) 1);
 				}
-				else if(mat == Material.STONE_SLAB){	
+				else if(mat == Material.STONE_SLAB){
+					logger.debug("main hand has STONE_SLAB.");
 					storageSign.setMaterial(mat);
 					storageSign.setDamage((short) 1);
 				}
 				else if (mat == Material.POTION || mat == Material.SPLASH_POTION || mat == Material.LINGERING_POTION)
 				{
+					logger.debug("main hand has PotionSeries.");
 					storageSign.setMaterial(mat);
 					PotionMeta potionMeta = (PotionMeta)itemMainHand.getItemMeta();
 					PotionType pot = potionMeta.getBasePotionType();
@@ -179,6 +284,7 @@ public class StorageSignCore extends JavaPlugin implements Listener{
 				}
 				else if (mat == Material.ENCHANTED_BOOK)
 				{
+					logger.debug("main hand has EnchantedBook.");
 					EnchantmentStorageMeta enchantMeta = (EnchantmentStorageMeta)itemMainHand.getItemMeta();
 					if(enchantMeta.getStoredEnchants().size() == 1) {
 						Enchantment ench = enchantMeta.getStoredEnchants().keySet().toArray(new Enchantment[0])[0];
@@ -187,11 +293,13 @@ public class StorageSignCore extends JavaPlugin implements Listener{
 						storageSign.setEnchant(ench);
 					}
 				}else if(mat == Material.FIREWORK_ROCKET){
+					logger.debug("main hand has FireRocket.");
 					storageSign.setMaterial(mat);
 					FireworkMeta fireworkMeta = (FireworkMeta)itemMainHand.getItemMeta();
 					storageSign.setDamage((short) fireworkMeta.getPower());
 				}
 				else if(mat == Material.WHITE_BANNER){
+					logger.debug("main hand has WhiteBanner.");
 					storageSign.setMaterial(mat);
 					BannerMeta bannerMeta = (BannerMeta)itemMainHand.getItemMeta();
 					if(bannerMeta.getPatterns().size() == 8) {
@@ -201,21 +309,31 @@ public class StorageSignCore extends JavaPlugin implements Listener{
 				}
 				else
 				{
+					logger.debug("main hand has " + mat);
 					storageSign.setMaterial(mat);
 					var meta = itemMainHand.getItemMeta();
+
+					logger.trace("meta instanceof Damageable dam" + (meta instanceof Damageable dam));
 					if (meta instanceof Damageable dam) {
+						logger.debug("This Item has Damage.damage:" + dam.getDamage());
 						storageSign.setDamage((short) dam.getDamage());
 					}
 				}
 
-				for (int i=0; i<4; i++) sign.getSide(Side.FRONT).setLine(i, storageSign.getSigntext(i));
+				logger.debug("SignTextUpdate.");
+				for (int i=0; i<4; i++) {
+					logger.trace("[i]:" + i + ". signText:" + storageSign.getSigntext(i));
+					sign.getSide(Side.FRONT).setLine(i, storageSign.getSigntext(i));
+				}
 				sign.update();
+
+				logger.debug("onPlayerInteract: End");
 				return;
 			}
 
 			if (isStorageSign(itemMainHand)) {
 				//看板合成
-				StorageSign itemSign = new StorageSign(itemMainHand);
+				StorageSign itemSign = new StorageSign(itemMainHand, logger);
 				if (storageSign.getContents().isSimilar(itemSign.getContents()) && config.getBoolean("manual-import")) {
 					storageSign.addAmount(itemSign.getAmount() * itemSign.getStackSize());
 					itemSign.setAmount(0);
@@ -279,8 +397,7 @@ public class StorageSignCore extends JavaPlugin implements Listener{
 					event.setUseItemInHand(Result.ALLOW);
 					event.setUseInteractedBlock(Result.ALLOW);
 					return;
-				}
-            	else  if (storageSign.isEmpty()) return;
+				} else  if (storageSign.isEmpty()) return;
                 ItemStack item = storageSign.getContents();
                 int max = item.getMaxStackSize();
 
@@ -336,13 +453,13 @@ public class StorageSignCore extends JavaPlugin implements Listener{
         if (event.isCancelled()) return;
         Block block = event.getBlock();
         Map<Location, StorageSign> breakSignMap = new HashMap<>();
-        if (isStorageSign(block)) breakSignMap.put(block.getLocation(), new StorageSign((Sign)block.getState(),block.getType()));
+        if (isStorageSign(block)) breakSignMap.put(block.getLocation(), new StorageSign((Sign)block.getState(),block.getType(), logger));
 
 		for (int i=0; i<5; i++) {//東西南北で判定
             BlockFace[] face = {BlockFace.UP,BlockFace.SOUTH,BlockFace.NORTH,BlockFace.EAST,BlockFace.WEST};
             block = event.getBlock().getRelative(face[i]);
-            if (i==0 && isSignPost(block) && isStorageSign(block)) breakSignMap.put(block.getLocation(), new StorageSign((Sign)block.getState(),block.getType()));
-            else if(isWallSign(block) && ((WallSign) block.getBlockData()).getFacing() == face[i] && isStorageSign(block)) breakSignMap.put(block.getLocation(), new StorageSign((Sign)block.getState(),block.getType()));
+            if (i==0 && isSignPost(block) && isStorageSign(block)) breakSignMap.put(block.getLocation(), new StorageSign((Sign)block.getState(),block.getType(), logger));
+            else if(isWallSign(block) && ((WallSign) block.getBlockData()).getFacing() == face[i] && isStorageSign(block)) breakSignMap.put(block.getLocation(), new StorageSign((Sign)block.getState(),block.getType(), logger));
         }
         if (breakSignMap.isEmpty()) return;
         if (!event.getPlayer().hasPermission("storagesign.break")) {
@@ -369,7 +486,7 @@ public class StorageSignCore extends JavaPlugin implements Listener{
             event.setCancelled(true);
             return;
         }
-        StorageSign storageSign = new StorageSign(event.getItemInHand());
+        StorageSign storageSign = new StorageSign(event.getItemInHand(), logger);
         Sign sign = (Sign)event.getBlock().getState();
         for (int i=0; i<4; i++) sign.getSide(Side.FRONT).setLine(i, storageSign.getSigntext(i));
         
@@ -414,14 +531,14 @@ public class StorageSignCore extends JavaPlugin implements Listener{
                         		//
                         	}
                             sign = (Sign) block.getState();
-                            storageSign = new StorageSign(sign,block.getType());
+                            storageSign = new StorageSign(sign,block.getType(), logger);
                             if (storageSign.isSimilar(item)) {
                                 flag = true;
                                 break importLoop;
                             }
                         } else if (i != 0 && isWallSign(block) &&  ((WallSign) block.getBlockData()).getFacing() == face[i] && isStorageSign(block)) {
                             sign = (Sign) block.getState();
-                            storageSign = new StorageSign(sign,block.getType());
+                            storageSign = new StorageSign(sign,block.getType(), logger);
                             if (storageSign.isSimilar(item)) {
                                 flag = true;
                                 break importLoop;
@@ -457,14 +574,14 @@ public class StorageSignCore extends JavaPlugin implements Listener{
                         Block block = blockInventory[j].getBlock().getRelative(face[i]);
                         if (i==0 && isSignPost(block) && isStorageSign(block)) {
                         	sign = (Sign) block.getState();
-                        	storageSign = new StorageSign(sign,block.getType());
+                        	storageSign = new StorageSign(sign,block.getType(), logger);
                         	if (storageSign.isSimilar(item)) {
                         		flag = true;
                         		break exportLoop;
                         	}
                         } else if (i != 0 && isWallSign(block) &&  ((WallSign) block.getBlockData()).getFacing() == face[i] && isStorageSign(block)) {
                         	sign = (Sign) block.getState();
-                        	storageSign = new StorageSign(sign,block.getType());
+                        	storageSign = new StorageSign(sign,block.getType(), logger);
                         	if (storageSign.isSimilar(item)) {
                         		flag = true;
                         		break exportLoop;
@@ -584,14 +701,14 @@ public class StorageSignCore extends JavaPlugin implements Listener{
                 Block block = ((BlockState)holder).getBlock().getRelative(face[i]);
                 if (i==0 && isSignPost(block) && isStorageSign(block)) {
                     sign = (Sign) block.getState();
-                    storageSign = new StorageSign(sign,block.getType());
+                    storageSign = new StorageSign(sign,block.getType(), logger);
                     if (storageSign.isSimilar(event.getItem().getItemStack())) {
                         flag = true;
                         break;
                     }
                 } else if (i != 0 && isWallSign(block) && ((WallSign) block.getBlockData()).getFacing() == face[i] && isStorageSign(block)) {//BlockFaceに変更？(めんどい)
                     sign = (Sign) block.getState();
-                    storageSign = new StorageSign(sign,block.getType());
+                    storageSign = new StorageSign(sign,block.getType(), logger);
                     if (storageSign.isSimilar(event.getItem().getItemStack())) {
                         flag = true;
                         break;
@@ -613,7 +730,7 @@ public class StorageSignCore extends JavaPlugin implements Listener{
     		//ここでは、エラーを出さずに無視する
     		if(!player.hasPermission("storagesign.autocollect")) return;
     		if(isStorageSign(playerInv.getItemInMainHand())){
-    			storagesign = new StorageSign(playerInv.getItemInMainHand());
+    			storagesign = new StorageSign(playerInv.getItemInMainHand(), logger);
     			if(storagesign.getContents() != null){
 
     				if (storagesign.isSimilar(item) && playerInv.containsAtLeast(item, item.getMaxStackSize()) && storagesign.getStackSize() == 1) {
@@ -629,7 +746,7 @@ public class StorageSignCore extends JavaPlugin implements Listener{
     				}
     			}
     		}if(isStorageSign(playerInv.getItemInOffHand())){//メインハンドで回収されなかった時
-    			storagesign = new StorageSign(playerInv.getItemInOffHand());
+    			storagesign = new StorageSign(playerInv.getItemInOffHand(), logger);
     			if(storagesign.getContents() != null){
 
     				if (storagesign.isSimilar(item) && playerInv.containsAtLeast(item, item.getMaxStackSize()) && storagesign.getStackSize() == 1) {
