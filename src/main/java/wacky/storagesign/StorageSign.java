@@ -3,7 +3,6 @@ package wacky.storagesign;
 import com.github.teruteru128.logger.Logger;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.bukkit.Material;
 import org.bukkit.block.Sign;
 import org.bukkit.block.sign.Side;
@@ -19,32 +18,52 @@ import org.bukkit.util.NumberConversions;
 
 /**
  * StrageSignの実体クラスです.
- * */
+ */
 public class StorageSign {
-  /**  */
+
+  /**
+   *
+   */
   protected Material smat;
-  /**  */
+  /**
+   *
+   */
   protected Material mat;
-  /**  */
+  /**
+   *
+   */
   protected short damage;
-  /**  */
+  /**
+   *
+   */
   protected Enchantment ench;
-  /**  */
+  /**
+   *
+   */
   protected PotionType pot;
-  /**  */
+  /**
+   *
+   */
   protected int amount;
-  /**  */
+  /**
+   *
+   */
   protected int stack;
-  /**  */
+  /**
+   *
+   */
   protected boolean isEmpty;
 
-  /**  */
+  /**
+   *
+   */
   private Logger _logger;
 
   //StorageSignだと確認してから使っちくりー
-  /** 
-   * 
-   * */
+
+  /**
+   *
+   */
   public StorageSign(ItemStack item, Logger logger) {
     this._logger = logger;
 
@@ -92,14 +111,14 @@ public class StorageSign {
   }*/
 
   /**
-   * 
-   * */
+   *
+   */
   public StorageSign(Sign sign, Material signmat, Logger logger) {
     //上と統合したい
     String[] line2 = sign.getSide(Side.FRONT).getLine(1).trim().split(":");
     this.mat = getMaterial(line2[0]);
     this.isEmpty = (this.mat == null
-      || this.mat == Material.AIR);
+        || this.mat == Material.AIR);
 
     if (this.mat == Material.ENCHANTED_BOOK) {
       EnchantInfo ei = new EnchantInfo(this.mat, line2, logger);
@@ -170,12 +189,39 @@ public class StorageSign {
   }
 
   /**
+   * 空のStorageSignを作成して、ItemStackとして取得します.
+   *
+   * @return ItemStack 空のStorageSign
+   */
+  public static ItemStack emptySign() {
+    return emptySign(Material.OAK_SIGN);
+  }
+
+  /**
+   * Materialの内容から、空のStorageSignを作成して、ItemStackとして取得します.
+   *
+   * @param smat Material
+   * @return ItemStack 空のStorageSign
+   */
+  public static ItemStack emptySign(Material smat) {
+    ItemStack emptySign = new ItemStack(smat);
+    ItemMeta meta = emptySign.getItemMeta();
+    List<String> list = new ArrayList<>();
+
+    meta.setDisplayName("StorageSign");
+    list.add("Empty");
+    meta.setLore(list);
+    emptySign.setItemMeta(meta);
+
+    return emptySign;
+  }
+
+  /**
    * 指定された文字列でMaterialに変換します.
    *
-   * @param str 
-   * 
+   * @param str
    * @return Material
-   * */
+   */
   protected Material getMaterial(String str) {
     //    if (str.matches("EmptySign")) {
     //        return Material.END_PORTAL;
@@ -282,16 +328,23 @@ public class StorageSign {
    * StorageSignが保持しているMaterialを取得します.
    *
    * @return Material
-   * */
+   */
   public Material getMaterial() {
     return this.mat;
+  }
+
+  /**
+   * フィールド変数：matのsetter.
+   */
+  public void setMaterial(Material mat) {
+    this.mat = mat;
   }
 
   /**
    * Materialの短い名前を文字列として取得します.
    *
    * @return Materialの短い名前
-   * */
+   */
   protected String getShortName() {
     //2行目の記載内容
     if (this.mat == null
@@ -351,11 +404,11 @@ public class StorageSign {
         && this.damage == 1) {
       return "BambooStorageSign";
 
-    //else if (mat == Material.LEGACY_STAINED_GLASS_PANE) return damage == 0 ? "STAINGLASS_PANE" : "STAINGLASS_P:" + damage;
-    //else if (mat == Material.LEGACY_REDSTONE_COMPARATOR) return "RS_COMPARATOR";
-    //else if (mat == Material.LEGACY_REDSTONE_TORCH_ON) return "REDSTONE_TORCH";
-    //else if (mat == Material.LEGACY_HUGE_MUSHROOM_1) return damage == 0 ? "BROWN_MUSH_BLOC" : "BROWN_MUSH_B:" + damage;
-    //else if (mat == Material.LEGACY_HUGE_MUSHROOM_2) return damage == 0 ? "RED_MUSH_BLOCK" : "RED_MUSH_BLO:" + damage;
+      //else if (mat == Material.LEGACY_STAINED_GLASS_PANE) return damage == 0 ? "STAINGLASS_PANE" : "STAINGLASS_P:" + damage;
+      //else if (mat == Material.LEGACY_REDSTONE_COMPARATOR) return "RS_COMPARATOR";
+      //else if (mat == Material.LEGACY_REDSTONE_TORCH_ON) return "REDSTONE_TORCH";
+      //else if (mat == Material.LEGACY_HUGE_MUSHROOM_1) return damage == 0 ? "BROWN_MUSH_BLOC" : "BROWN_MUSH_B:" + damage;
+      //else if (mat == Material.LEGACY_HUGE_MUSHROOM_2) return damage == 0 ? "RED_MUSH_BLOCK" : "RED_MUSH_BLO:" + damage;
 
     } else if (this.mat == Material.ENCHANTED_BOOK) {
       return "ENCHBOOK:" + EnchantInfo.getShortType(this.ench) + ":" + this.damage;
@@ -391,7 +444,7 @@ public class StorageSign {
    * 空のStorageSignを作成して、ItemStackとして取得します.
    *
    * @return ItemStack 空のStorageSign
-   * */
+   */
   public ItemStack getStorageSign() {
     ItemStack item = new ItemStack(this.smat, this.stack);
     ItemMeta meta = item.getItemMeta();
@@ -425,39 +478,10 @@ public class StorageSign {
   }
 
   /**
-   * 空のStorageSignを作成して、ItemStackとして取得します.
-   *
-   * @return ItemStack 空のStorageSign
-   * */
-  public static ItemStack emptySign() {
-    return emptySign(Material.OAK_SIGN);
-  }
-
-  /**
-   * Materialの内容から、空のStorageSignを作成して、ItemStackとして取得します.
-   *
-   * @param smat Material
-   *
-   * @return ItemStack 空のStorageSign
-   * */
-  public static ItemStack emptySign(Material smat) {
-    ItemStack emptySign = new ItemStack(smat);
-    ItemMeta meta = emptySign.getItemMeta();
-    List<String> list = new ArrayList<>();
-
-    meta.setDisplayName("StorageSign");
-    list.add("Empty");
-    meta.setLore(list);
-    emptySign.setItemMeta(meta);
-
-    return emptySign;
-  }
-
-  /**
    * 空のHorseEggを作成して、ItemStackとして取得します.
    *
    * @return ItemStack 空のHoerseEgg
-   * */
+   */
   private ItemStack emptyHorseEgg() {
     ItemStack emptyHorseEgg = new ItemStack(Material.GHAST_SPAWN_EGG);
     ItemMeta meta = emptyHorseEgg.getItemMeta();
@@ -474,11 +498,9 @@ public class StorageSign {
   /**
    * StrageSignから、設置されている看板として表示される文字列を取得します.
    *
-   * @param i 看板の何行目の文字列を取得したいか指定します<br>
-   *     (ex.)１行目⇒0
-   *
+   * @param i 看板の何行目の文字列を取得したいか指定します<br> (ex.)１行目⇒0
    * @return 取得した文字列
-   * */
+   */
   public String getSigntext(int i) {
     String[] sign = new String[4];
 
@@ -496,7 +518,7 @@ public class StorageSign {
    * StrageSignの内容を取得します.
    *
    * @return ItemStack
-   * */
+   */
   public ItemStack getContents() {
     //中身取得、一部アイテム用の例外
     if (this.mat == null) {
@@ -599,7 +621,7 @@ public class StorageSign {
    * 回収可能か判定、エンチャ本は本自身の合成回数を問わない.
    *
    * @return true：回収できるよ/false：回収できないよ
-   * */
+   */
   public boolean isSimilar(ItemStack item) {
     if (item == null) {
       return false;
@@ -632,36 +654,29 @@ public class StorageSign {
   }
 
   /**
-   * フィールド変数：matのsetter.
-   * */
-  public void setMaterial(Material mat) {
-    this.mat = mat;
-  }
-
-  /**
    * フィールド変数：damageのgetter.
-   * */
+   */
   public short getDamage() {
     return this.damage;
   }
 
   /**
    * フィールド変数：damageのsetter.
-   * */
+   */
   public void setDamage(short damage) {
     this.damage = damage;
   }
 
   /**
    * フィールド変数：amountのgetter.
-   * */
+   */
   public int getAmount() {
     return this.amount;
   }
 
   /**
    * フィールド変数：amountのsetter.
-   * */
+   */
   public void setAmount(int amount) {
     this.amount = amount;
     this.isEmpty = amount == 0;
@@ -671,7 +686,7 @@ public class StorageSign {
    * フィールド変数：amountへ加算をします.
    *
    * @param amount 加算対象の値
-   * */
+   */
   public void addAmount(int amount) {
     if (this.amount < -amount) {
       this.amount = 0;
@@ -693,7 +708,7 @@ public class StorageSign {
    * StorageSignが保持しているStackSizeを取得します.
    *
    * @return StackSize
-   * */
+   */
   public int getStackSize() {
     return this.stack;
   }
@@ -702,42 +717,42 @@ public class StorageSign {
    * StrageSignが保持している内容か空かを取得します.
    *
    * @return true：空っぽ/false：入ってます
-   * */
+   */
   public boolean isEmpty() {
     return this.isEmpty;
   }
 
   /**
-   * フィールド変数：enchのsetter.
-   * */
-  public void setEnchant(Enchantment ench) {
-    this.ench = ench;
-  }
-
-  /**
    * フィールド変数：enchのgetter.
-   * */
+   */
   public Enchantment getEnchant() {
     return this.ench;
   }
 
   /**
-   * フィールド変数：potのsetter.
-   * */
-  public void setPotion(PotionType pot) {
-    this.pot = pot;
+   * フィールド変数：enchのsetter.
+   */
+  public void setEnchant(Enchantment ench) {
+    this.ench = ench;
   }
 
   /**
    * フィールド変数：potのgetter.
-   * */
+   */
   public PotionType getPotion() {
     return this.pot;
   }
 
   /**
+   * フィールド変数：potのsetter.
+   */
+  public void setPotion(PotionType pot) {
+    this.pot = pot;
+  }
+
+  /**
    * フィールド変数：smatのgetter.
-   * */
+   */
   public Material getSmat() {
     return this.smat;
   }
@@ -746,7 +761,7 @@ public class StorageSign {
    * マテリアルがシュルカーボックスかを検査します.
    *
    * @return true：シュルカーボックスにだよ/false：シュルカーボックスじゃないよ
-   * */
+   */
   private boolean isShulker(Material mat) {
     switch (mat) {
       case SHULKER_BOX:
@@ -767,7 +782,7 @@ public class StorageSign {
       case RED_SHULKER_BOX:
       case BLACK_SHULKER_BOX:
         return true;
-  
+
       default:
 
     }

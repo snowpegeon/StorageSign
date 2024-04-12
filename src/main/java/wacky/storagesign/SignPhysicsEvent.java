@@ -7,18 +7,18 @@ import org.bukkit.event.block.BlockPhysicsEvent;
 
 public class SignPhysicsEvent implements Listener {
 
-	StorageSignCore plugin;
+  StorageSignCore plugin;
   private Logger _logger;
 
-    public SignPhysicsEvent(StorageSignCore plugin, Logger logger) {
-    	this.plugin = plugin;
-      this._logger = logger;
+  public SignPhysicsEvent(StorageSignCore plugin, Logger logger) {
+    this.plugin = plugin;
+    this._logger = logger;
 
-      plugin.getServer().getPluginManager().registerEvents(this, plugin);
-	}
+    plugin.getServer().getPluginManager().registerEvents(this, plugin);
+  }
 
-	@EventHandler
-    public void onBlockPhysics(BlockPhysicsEvent event) {
-        event.setCancelled(plugin.isStorageSign(event.getBlock()));
-    }
+  @EventHandler
+  public void onBlockPhysics(BlockPhysicsEvent event) {
+    event.setCancelled(plugin.isStorageSign(event.getBlock()));
+  }
 }
