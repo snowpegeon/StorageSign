@@ -65,8 +65,8 @@ public class StorageSign {
    *
    */
   public StorageSign(ItemStack item, Logger logger) {
-    logger.debug("public StorageSign(ItemStack item, Logger logger)");
     this._logger = logger;
+    logger.debug("public StorageSign(ItemStack item, Logger logger)");
 
     String[] str = item.getItemMeta().getLore().get(0).split(" ");
 
@@ -122,6 +122,7 @@ public class StorageSign {
    *
    */
   public StorageSign(Sign sign, Material signmat, Logger logger) {
+    this._logger = logger;
     logger.debug("public StorageSign(Sign sign, Material signmat, Logger logger)");
     //上と統合したい
     String[] line2 = sign.getSide(Side.FRONT).getLine(1).trim().split(":");
