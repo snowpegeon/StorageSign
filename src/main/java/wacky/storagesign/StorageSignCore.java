@@ -40,6 +40,7 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerSignOpenEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -544,14 +545,6 @@ public class StorageSignCore extends JavaPlugin implements Listener {
       logger.debug("★this Event is Cancelled!");
 			return;
 		}
-
-    logger.trace("event.getSide().equals(Side.BACK): " + event.getSide().equals(Side.BACK));
-    // バックの場合、キャンセルイベントを発行して終了する
-    if (event.getSide().equals(Side.BACK)) {
-      logger.debug("★This Event is Execute BACK.");
-      event.setCancelled(true);
-      return;
-    }
     Sign sign = (Sign) event.getBlock().getState();
 
     logger.trace("sign.getSide(Side.FRONT).getLine(0):" + sign.getSide(Side.FRONT).getLine(0));
@@ -693,6 +686,27 @@ public class StorageSignCore extends JavaPlugin implements Listener {
     //時差発動が必要らしい
     player.closeInventory();
     logger.debug("★onBlockPlace: End");
+  }
+
+  @EventHandler
+  public void onPlayerSignOpen(PlayerSignOpenEvent event){
+    logger.debug("★onPlayerSignOpen:Start");
+
+    logger.trace("event.isCancelled(): " + event.isCancelled());
+    if (event.isCancelled()) {
+      logger.debug("★this Event is Cancelled!");
+      return;
+    }
+
+    Block block = event.getSign().getBlock();
+    boolean isStorageSign = isStorageSign(block);
+    logger.trace("isStorageSign: " + isStorageSign);
+    if (isStorageSign) {
+      logger.debug("StorageSignEdit Cancel.");
+      event.setCancelled(true);
+    }
+
+    logger.debug("★onPlayerSignOpen:End");
   }
 
 

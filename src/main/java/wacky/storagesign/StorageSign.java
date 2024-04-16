@@ -502,6 +502,17 @@ public class StorageSign {
    * @return 取得した文字列
    */
   public String getSigntext(int i) {
+    String[] sign = getSigntexts();
+
+    return sign[i];
+  }
+
+  /**
+   * StrageSignから、設置されている看板として表示される文字列配列を取得します.
+   *
+   * @return 取得した文字列
+   */
+  public String[] getSigntexts() {
     String[] sign = new String[4];
 
     sign[0] = "StorageSign";
@@ -511,9 +522,8 @@ public class StorageSign {
         + String.valueOf(this.amount % 3456 / 64) + "s "
         + String.valueOf(this.amount % 64);
 
-    return sign[i];
+    return sign;
   }
-
   /**
    * StrageSignの内容を取得します.
    *
