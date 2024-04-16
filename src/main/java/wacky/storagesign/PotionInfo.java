@@ -116,14 +116,17 @@ public class PotionInfo {
   public PotionInfo(Material material, String type, String effName, String enhance, Logger logger) {
 
     this.logger = logger;
-    logger.debug("PotionItnfoConstructor:Start");
+    logger.debug("PotionInfo:Start");
     this.mat = material;
 
     // ポーション種別の設定
+    logger.trace("type: " + type);
     if (type.startsWith(TYPE_SPLASH_PREF)) {
+      logger.debug("This Potion Type is SplashPortion.");
       this.mat = Material.SPLASH_POTION;
     } else if (type.startsWith(TYPE_LINGERING_PREF)) {
       // 元のやつだと入ってないからいらない？
+      logger.debug("This Potion Type is LingeringPortion.");
       this.mat = Material.LINGERING_POTION;
     }
 
@@ -131,6 +134,9 @@ public class PotionInfo {
     this.damage = NumberConversions.toShort(enhance);
 
     // 一応前のロジックも入れておく
+    logger.trace("damage: " + damage);
+    logger.trace("pot.isExtendable(): " + pot.isExtendable());
+    logger.trace("pot.isUpgradeable(): " + pot.isUpgradeable());
     if (damage % 8192 > 64 && pot.isExtendable()) {
       this.damage = 1;//延長
     } else if (damage % 64 > 32 && pot.isUpgradeable()) {
@@ -228,66 +234,98 @@ public class PotionInfo {
   }
 
   private PotionType getType(String effName, String enhance) {
+    logger.debug("getType: Start");
 
     // 表記上例外のケースたちの判定
+    logger.trace("effName: " + effName + ".enhance: " + enhance);
+    logger.trace("effName.equals(SHORT_NAME_HEAL): " + effName.equals(SHORT_NAME_HEAL));
+    logger.trace("effName.equals(SHORT_NAME_BREAT): " + effName.equals(SHORT_NAME_BREAT));
+    logger.trace("effName.equals(SHORT_NAME_DAMAG): " + effName.equals(SHORT_NAME_DAMAG));
+    logger.trace("effName.equals(SHORT_NAME_JUMP): " + effName.equals(SHORT_NAME_JUMP));
+    logger.trace("effName.equals(SHORT_NAME_SPEED): " + effName.equals(SHORT_NAME_SPEED));
+    logger.trace("enhance.equals(ENHANCE_NORMAL_CODE)" + enhance.equals(ENHANCE_NORMAL_CODE));
+    logger.trace("enhance.equals(ENHANCE_STRONG_CODE)" + enhance.equals(ENHANCE_STRONG_CODE));
     if (effName.equals(SHORT_NAME_HEAL)) {
       if (enhance.equals(ENHANCE_NORMAL_CODE)) {
+        logger.debug("Portion:Heal.");
         return PotionType.INSTANT_HEAL;
       } else if (enhance.equals(ENHANCE_STRONG_CODE)) {
+        logger.debug("Portion:Str_Heal.");
         return PotionType.STRONG_HEALING;
       } else {
+        logger.error("Heal Enhance is not Exist!Enhance: " + enhance);
         throw new PotionException("治癒のポーションに対応する種類が存在しません");
       }
     } else if (effName.equals(SHORT_NAME_BREAT)) {
       if (enhance.equals(ENHANCE_NORMAL_CODE)) {
+        logger.debug("Portion:Breat.");
         return PotionType.WATER_BREATHING;
       } else if (enhance.equals(ENHANCE_EXTENSION_CODE)) {
+        logger.debug("Portion:Ext_Breat.");
         return PotionType.LONG_WATER_BREATHING;
       } else {
+        logger.error("Breat Enhance is not Exist!Enhance: " + enhance);
         throw new PotionException("水中呼吸のポーションに対応する種類が存在しません");
       }
     } else if (effName.equals(SHORT_NAME_DAMAG)) {
       if (enhance.equals(ENHANCE_NORMAL_CODE)) {
+        logger.debug("Portion:Damage.");
         return PotionType.INSTANT_DAMAGE;
       } else if (enhance.equals(ENHANCE_STRONG_CODE)) {
+        logger.debug("Portion:Str_Damage.");
         return PotionType.STRONG_HARMING;
       } else {
+        logger.error("Damage Enhance is not Exist!Enhance: " + enhance);
         throw new PotionException("ダメージのポーションに対応する種類が存在しません");
       }
     } else if (effName.equals(SHORT_NAME_JUMP)) {
       if (enhance.equals(ENHANCE_NORMAL_CODE)) {
+        logger.debug("Portion:Jump.");
         return PotionType.JUMP;
       } else if (enhance.equals(ENHANCE_EXTENSION_CODE)) {
+        logger.debug("Portion:Ext_Jump.");
         return PotionType.LONG_LEAPING;
       } else if (enhance.equals(ENHANCE_STRONG_CODE)) {
+        logger.debug("Portion:Str_Jump.");
         return PotionType.STRONG_LEAPING;
       } else {
+        logger.error("Jump Enhance is not Exist!Enhance: " + enhance);
         throw new PotionException("跳躍のポーションに対応する種類が存在しません");
       }
     } else if (effName.equals(SHORT_NAME_SPEED)) {
       if (enhance.equals(ENHANCE_NORMAL_CODE)) {
+        logger.debug("Portion:Speed.");
         return PotionType.SPEED;
       } else if (enhance.equals(ENHANCE_EXTENSION_CODE)) {
+        logger.debug("Portion:Ext_Speed.");
         return PotionType.LONG_SWIFTNESS;
       } else if (enhance.equals(ENHANCE_STRONG_CODE)) {
+        logger.debug("Portion:Str_Speed.");
         return PotionType.STRONG_SWIFTNESS;
       } else {
+        logger.error("Speed Enhance is not Exist!Enhance: " + enhance);
         throw new PotionException("俊敏のポーションに対応する種類が存在しません");
       }
     } else {
       // それ以外は命名ルールに従って検索をかける
       // 延長、強化があったら先頭にプレフィックスをつけて検索
+      logger.debug("SearchPotion");
       String name = effName;
       if (enhance.equals(ENHANCE_EXTENSION_CODE)) {
         name = ENHANCE_EXTENSION_PREF + name;
       } else if (enhance.equals(ENHANCE_STRONG_CODE)) {
         name = ENHANCE_STRONG_PREF + name;
       }
+      logger.trace("name: " + name);
       for (PotionType p : PotionType.values()) {
+        logger.trace(" p: " + p);
+        logger.trace(" p.toString().startsWith(name): " + p.toString().startsWith(name));
         if (p.toString().startsWith(name)) {
+          logger.debug(" Potion Is " + p);
           return p;
         }
       }
+      logger.error("Enhance is not Exist!");
       throw new PotionException("ポーションデータが存在しません");
     }
   }

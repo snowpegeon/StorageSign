@@ -17,8 +17,11 @@ public class EnchantInfo {
     this.mat = mat;
     this._logger = logger;
 
+    _logger.debug("EnchantInfo:Start");
     ench = getEnch(str[1]);
     damage = NumberConversions.toShort(str[2]);
+    _logger.trace("ench:" + ench);
+    _logger.trace("damage:" + damage);
   }
 
   public static String getShortType(Enchantment e) {
@@ -34,12 +37,16 @@ public class EnchantInfo {
   }
 
   private Enchantment getEnch(String substring) {
+    _logger.debug("getEnch: Start");
     //後ろ切れても可.
     for (Enchantment e : Registry.ENCHANTMENT) {
+      _logger.trace(" e: " + e);
+      _logger.trace(" e.getKey().getKey().startsWith(substring): " + e.getKey().getKey().startsWith(substring));
 			if (e.getKey().getKey().startsWith(substring)) {
 				return e;
 			}
     }
+    _logger.error("EnchantType is Not Found!substring:" + substring);
     return null;
   }
 
