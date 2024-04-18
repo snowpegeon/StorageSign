@@ -14,11 +14,13 @@ public class SignPhysicsEvent implements Listener {
     this.plugin = plugin;
     this._logger = logger;
 
+    _logger.debug("SignPhysicsEvent:Start");
     plugin.getServer().getPluginManager().registerEvents(this, plugin);
   }
 
   @EventHandler
   public void onBlockPhysics(BlockPhysicsEvent event) {
+    _logger.debug("onBlockPhysics:Start");
     event.setCancelled(plugin.isStorageSign(event.getBlock()));
   }
 }
