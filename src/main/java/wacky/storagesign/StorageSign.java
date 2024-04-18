@@ -588,7 +588,6 @@ public class StorageSign {
    */
   public String getSigntext(int i) {
     _logger.debug("getSigntext:start");
-=======
     String[] sign = getSigntexts();
 
     return sign[i];
@@ -600,7 +599,7 @@ public class StorageSign {
    * @return 取得した文字列
    */
   public String[] getSigntexts() {
-
+    _logger.debug("getSigntexts:start");
     String[] sign = new String[4];
 
     sign[0] = "StorageSign";
@@ -770,6 +769,15 @@ public class StorageSign {
       _logger.debug("Shulker");
       //後回し
 
+    } else if (this.mat == Material.POTION || this.mat == Material.SPLASH_POTION || this.mat == Material.LINGERING_POTION){
+      _logger.debug("This mat is PotionSeries.");
+
+      if(item.getItemMeta() instanceof PotionMeta){
+        PotionMeta pom = (PotionMeta) item.getItemMeta();
+        if(pom.getBasePotionType().equals(this.pot)){
+          return true;
+        }
+      }
     }
 
     return getContents().isSimilar(item);

@@ -202,7 +202,7 @@ public class PotionInfo {
   }
 
   public static String getTagData(Material mat, PotionType pot, short damage, int amount) {
-    return mat.toString() + ":" + pot.toString() + ":" + damage + " " + amount;
+    return mat.toString() + ":" + getNormalType(pot).toString() + ":" + damage + " " + amount;
   }
 
   public static String getPotionTypeCode(PotionType pot) {
@@ -326,6 +326,35 @@ public class PotionInfo {
         }
       }
       logger.error("Enhance is not Exist!");
+      throw new PotionException("ポーションデータが存在しません");
+    }
+  }
+
+  private static PotionType getNormalType(PotionType pot){
+    if (HEAL_POTIONS.contains(pot)) {
+      return PotionType.INSTANT_HEAL;
+    } else if (BREATH_POTIONS.contains(pot)) {
+      return PotionType.WATER_BREATHING;
+    } else if (DAMAGE_POTIONS.contains(pot)) {
+      return PotionType.INSTANT_DAMAGE;
+    } else if (JUMP_POTIONS.contains(pot)) {
+      return PotionType.JUMP;
+    } else if (SPEED_POTIONS.contains(pot)) {
+      return PotionType.SPEED;
+    } else {
+      // それ以外のもの
+      // 延長・強化のプレフィックス除去
+      String name = pot.toString();
+      if (name.startsWith(ENHANCE_EXTENSION_PREF)) {
+        name = name.substring(ENHANCE_EXTENSION_PREF.length());
+      } else if (name.startsWith(ENHANCE_STRONG_PREF)) {
+        name = name.substring(ENHANCE_STRONG_PREF.length());
+      }
+      for (PotionType p : PotionType.values()) {
+        if (p.toString().startsWith(name)) {
+          return p;
+        }
+      }
       throw new PotionException("ポーションデータが存在しません");
     }
   }
