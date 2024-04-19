@@ -12,7 +12,6 @@
         </repository>
     </repositories>
     <build>
-        <finalName>${project.artifactId}_${project.version}</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
