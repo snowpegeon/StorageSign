@@ -378,6 +378,7 @@ public class PotionInfo {
         put(PotionType.WATER_BREATHING.toString(), SHORT_NAME_BREAT);
         put(PotionType.JUMP.toString(), SHORT_NAME_JUMP);
         put(PotionType.SPEED.toString(), SHORT_NAME_SPEED);
+        put(PotionType.REGEN.toString(), SHORT_NAME_REGEN);
       }
     };
     if(nbtNameShotNameMap.containsKey(nbtName)){
