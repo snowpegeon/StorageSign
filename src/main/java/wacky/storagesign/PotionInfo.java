@@ -1,22 +1,24 @@
 package wacky.storagesign;
 
-import com.github.teruteru128.logger.Logger;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import org.bukkit.Material;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.NumberConversions;
+import com.github.teruteru128.logger.Logger;
 import wacky.storagesign.Exception.PotionException;
 
 public class PotionInfo {
 
-  private static final Set<PotionType> HEAL_POTIONS = Collections.unmodifiableSet(
-      EnumSet.of(PotionType.INSTANT_HEAL, PotionType.STRONG_HEALING));
-  private static final Set<PotionType> BREATH_POTIONS = Collections.unmodifiableSet(
-      EnumSet.of(PotionType.WATER_BREATHING, PotionType.LONG_WATER_BREATHING));
-  private static final Set<PotionType> DAMAGE_POTIONS = Collections.unmodifiableSet(
-      EnumSet.of(PotionType.INSTANT_DAMAGE, PotionType.STRONG_HARMING));
+  private static final Set<PotionType> HEAL_POTIONS =
+      Collections.unmodifiableSet(EnumSet.of(PotionType.INSTANT_HEAL, PotionType.STRONG_HEALING));
+  private static final Set<PotionType> BREATH_POTIONS = Collections
+      .unmodifiableSet(EnumSet.of(PotionType.WATER_BREATHING, PotionType.LONG_WATER_BREATHING));
+  private static final Set<PotionType> DAMAGE_POTIONS =
+      Collections.unmodifiableSet(EnumSet.of(PotionType.INSTANT_DAMAGE, PotionType.STRONG_HARMING));
   private static final Set<PotionType> JUMP_POTIONS = Collections.unmodifiableSet(
       EnumSet.of(PotionType.JUMP, PotionType.LONG_LEAPING, PotionType.STRONG_LEAPING));
   private static final Set<PotionType> SPEED_POTIONS = Collections.unmodifiableSet(
@@ -41,7 +43,7 @@ public class PotionInfo {
   // 旧メソッド
   public PotionInfo(Material mat, String[] str) {
     this.mat = mat;
-    if (str.length == 2) {//ダメージ値
+    if (str.length == 2) {// ダメージ値
       short old = NumberConversions.toShort(str[1]);
       if (old >= 16384) {
         this.mat = Material.SPLASH_POTION;
@@ -100,14 +102,14 @@ public class PotionInfo {
       }
 
       if (old % 8192 > 64 && pot.isExtendable()) {
-        damage = 1;//延長
+        damage = 1;// 延長
       } else if (old % 64 > 32 && pot.isUpgradeable()) {
-        damage = 2;//強化
+        damage = 2;// 強化
       }
 
     } else if (str.length == 1) {
       pot = PotionType.WATER;
-    } else {//タイプとレベル
+    } else {// タイプとレベル
       pot = getType(str[1]);
       damage = NumberConversions.toShort(str[2]);
     }
@@ -117,6 +119,8 @@ public class PotionInfo {
 
     this.logger = logger;
     logger.debug("PotionInfo:Start");
+    logger.trace("material=" + material + ", type=" + type + ", effName=" + effName + ", enhance="
+        + enhance + ", logger=" + logger);
     this.mat = material;
 
     // ポーション種別の設定
@@ -138,9 +142,9 @@ public class PotionInfo {
     logger.trace("pot.isExtendable(): " + pot.isExtendable());
     logger.trace("pot.isUpgradeable(): " + pot.isUpgradeable());
     if (damage % 8192 > 64 && pot.isExtendable()) {
-      this.damage = 1;//延長
+      this.damage = 1;// 延長
     } else if (damage % 64 > 32 && pot.isUpgradeable()) {
-      this.damage = 2;//強化
+      this.damage = 2;// 強化
     }
 
   }
@@ -218,12 +222,12 @@ public class PotionInfo {
   // 旧メソッド
   private PotionType getType(String substring) {
     if (substring.equals("BREAT")) {
-      return PotionType.WATER_BREATHING;//例外
+      return PotionType.WATER_BREATHING;// 例外
     } else if (substring.equals("HEAL")) {
       return PotionType.INSTANT_HEAL;
     } else if (substring.equals("DAMAG")) {
       return PotionType.INSTANT_DAMAGE;
-    } else { //後ろ切れてるかも
+    } else { // 後ろ切れてるかも
       for (PotionType p : PotionType.values()) {
         if (p.toString().startsWith(substring)) {
           return p;
@@ -330,7 +334,7 @@ public class PotionInfo {
     }
   }
 
-  private static PotionType getNormalType(PotionType pot){
+  private static PotionType getNormalType(PotionType pot) {
     if (HEAL_POTIONS.contains(pot)) {
       return PotionType.INSTANT_HEAL;
     } else if (BREATH_POTIONS.contains(pot)) {
@@ -357,6 +361,16 @@ public class PotionInfo {
       }
       throw new PotionException("ポーションデータが存在しません");
     }
+  }
+
+  public static String convertNBTNameToShortName(String nbtName) {
+    Map<String, String> nbtNameShotNameMap = new HashMap<String, String>() {
+      {
+        put("INSTANT_HEAL", SHORT_NAME_HEAL);
+
+      }
+    };
+    return nbtNameShotNameMap.get(nbtName);
   }
 
   public short getDamage() {
