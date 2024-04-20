@@ -23,6 +23,8 @@ public class PotionInfo {
       EnumSet.of(PotionType.JUMP, PotionType.LONG_LEAPING, PotionType.STRONG_LEAPING));
   private static final Set<PotionType> SPEED_POTIONS = Collections.unmodifiableSet(
       EnumSet.of(PotionType.SPEED, PotionType.LONG_SWIFTNESS, PotionType.STRONG_SWIFTNESS));
+  private static final Set<PotionType> REGENERATION_POTIONS = Collections.unmodifiableSet(
+      EnumSet.of(PotionType.REGEN, PotionType.LONG_REGENERATION, PotionType.STRONG_REGENERATION));
   protected static String TYPE_SPLASH_PREF = "S";
   protected static String TYPE_LINGERING_PREF = "L";
   private static String ENHANCE_NORMAL_CODE = "0";
@@ -35,6 +37,7 @@ public class PotionInfo {
   private static String SHORT_NAME_DAMAG = "DAMAG";
   private static String SHORT_NAME_JUMP = "JUMP";
   private static String SHORT_NAME_SPEED = "SPEED";
+  private static String SHORT_NAME_REGEN = "SPEED";
   protected Material mat;
   protected PotionType pot;
   protected short damage = 0;
@@ -176,6 +179,8 @@ public class PotionInfo {
       return SHORT_NAME_JUMP;
     } else if (SPEED_POTIONS.contains(pot)) {
       return SHORT_NAME_SPEED;
+    } else if (REGENERATION_POTIONS.contains(pot)) {
+      return SHORT_NAME_REGEN;
     } else {
       // それ以外のもの
       // 延長・強化のプレフィックス除去
@@ -345,6 +350,8 @@ public class PotionInfo {
       return PotionType.JUMP;
     } else if (SPEED_POTIONS.contains(pot)) {
       return PotionType.SPEED;
+    } else if (REGENERATION_POTIONS.contains(pot)) {
+      return PotionType.REGEN;
     } else {
       // それ以外のもの
       // 延長・強化のプレフィックス除去
@@ -366,11 +373,17 @@ public class PotionInfo {
   public static String convertNBTNameToShortName(String nbtName) {
     Map<String, String> nbtNameShotNameMap = new HashMap<String, String>() {
       {
-        put("INSTANT_HEAL", SHORT_NAME_HEAL);
-
+        put(PotionType.INSTANT_HEAL.toString(), SHORT_NAME_HEAL);
+        put(PotionType.INSTANT_DAMAGE.toString(), SHORT_NAME_DAMAG);
+        put(PotionType.WATER_BREATHING.toString(), SHORT_NAME_BREAT);
+        put(PotionType.JUMP.toString(), SHORT_NAME_JUMP);
+        put(PotionType.SPEED.toString(), SHORT_NAME_SPEED);
       }
     };
-    return nbtNameShotNameMap.get(nbtName);
+    if(nbtNameShotNameMap.containsKey(nbtName)){
+      return nbtNameShotNameMap.get(nbtName);
+    }
+    return nbtName;
   }
 
   public short getDamage() {
