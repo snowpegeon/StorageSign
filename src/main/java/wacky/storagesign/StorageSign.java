@@ -397,6 +397,7 @@ public class StorageSign {
   protected String getShortName() {
     _logger.debug("getShortName:start");
     // 2行目の記載内容
+    _logger.trace("this.mat=" + mat);
     if (this.mat == null || this.mat == Material.AIR) {
       _logger.debug("empty");
       return "";
@@ -574,7 +575,8 @@ public class StorageSign {
   public String getSigntext(int i) {
     _logger.debug("getSigntext:start");
     String[] sign = getSigntexts();
-
+    _logger.trace("sign[]=" + String.join(" / ", sign));
+    _logger.debug("getSigntext:end");
     return sign[i];
   }
 
@@ -749,8 +751,10 @@ public class StorageSign {
         || this.mat == Material.LINGERING_POTION) {
       _logger.debug("This mat is PotionSeries.");
 
-      if (item.getItemMeta() instanceof PotionMeta) {
+      _logger.trace("this.mat.equals(item.getType()): " + this.mat.equals(item.getType()));
+      if (this.mat.equals(item.getType())) {
         PotionMeta pom = (PotionMeta) item.getItemMeta();
+        _logger.trace("pom.getBasePotionType().equals(this.pot): " + pom.getBasePotionType().equals(this.pot));
         if (pom.getBasePotionType().equals(this.pot)) {
           return true;
         }

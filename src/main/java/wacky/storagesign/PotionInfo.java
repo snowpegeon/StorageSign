@@ -1,14 +1,16 @@
 package wacky.storagesign;
 
+
+import static java.util.Map.entry;
+
+import com.github.teruteru128.logger.Logger;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.bukkit.Material;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.NumberConversions;
-import com.github.teruteru128.logger.Logger;
 import wacky.storagesign.Exception.PotionException;
 
 public class PotionInfo {
@@ -37,7 +39,14 @@ public class PotionInfo {
   private static String SHORT_NAME_DAMAG = "DAMAG";
   private static String SHORT_NAME_JUMP = "JUMP";
   private static String SHORT_NAME_SPEED = "SPEED";
-  private static String SHORT_NAME_REGEN = "SPEED";
+  private static String SHORT_NAME_REGEN = "REGEN";
+  private static final Map<String, String> NBT_NAME_SHORT_NAMES =
+      Map.ofEntries(entry(PotionType.INSTANT_HEAL.toString(), SHORT_NAME_HEAL),
+          entry(PotionType.INSTANT_DAMAGE.toString(), SHORT_NAME_DAMAG),
+          entry(PotionType.WATER_BREATHING.toString(), SHORT_NAME_BREAT),
+          entry(PotionType.JUMP.toString(), SHORT_NAME_JUMP),
+          entry(PotionType.SPEED.toString(), SHORT_NAME_SPEED),
+          entry(PotionType.REGEN.toString(), SHORT_NAME_REGEN));
   protected Material mat;
   protected PotionType pot;
   protected short damage = 0;
@@ -315,6 +324,20 @@ public class PotionInfo {
         logger.error("Speed Enhance is not Exist!Enhance: " + enhance);
         throw new PotionException("俊敏のポーションに対応する種類が存在しません");
       }
+    } else if (effName.equals(SHORT_NAME_REGEN)) {
+      if (enhance.equals(ENHANCE_NORMAL_CODE)) {
+        logger.debug("Portion:Regen.");
+        return PotionType.REGEN;
+      } else if (enhance.equals(ENHANCE_EXTENSION_CODE)) {
+        logger.debug("Portion:Ext_Regen.");
+        return PotionType.LONG_REGENERATION;
+      } else if (enhance.equals(ENHANCE_STRONG_CODE)) {
+        logger.debug("Portion:Str_Regen.");
+        return PotionType.STRONG_REGENERATION;
+      } else {
+        logger.error("Speed Enhance is not Exist!Enhance: " + enhance);
+        throw new PotionException("再生のポーションに対応する種類が存在しません");
+      }
     } else {
       // それ以外は命名ルールに従って検索をかける
       // 延長、強化があったら先頭にプレフィックスをつけて検索
@@ -371,18 +394,8 @@ public class PotionInfo {
   }
 
   public static String convertNBTNameToShortName(String nbtName) {
-    Map<String, String> nbtNameShotNameMap = new HashMap<String, String>() {
-      {
-        put(PotionType.INSTANT_HEAL.toString(), SHORT_NAME_HEAL);
-        put(PotionType.INSTANT_DAMAGE.toString(), SHORT_NAME_DAMAG);
-        put(PotionType.WATER_BREATHING.toString(), SHORT_NAME_BREAT);
-        put(PotionType.JUMP.toString(), SHORT_NAME_JUMP);
-        put(PotionType.SPEED.toString(), SHORT_NAME_SPEED);
-        put(PotionType.REGEN.toString(), SHORT_NAME_REGEN);
-      }
-    };
-    if(nbtNameShotNameMap.containsKey(nbtName)){
-      return nbtNameShotNameMap.get(nbtName);
+    if (NBT_NAME_SHORT_NAMES.containsKey(nbtName)) {
+      return NBT_NAME_SHORT_NAMES.get(nbtName);
     }
     return nbtName;
   }
