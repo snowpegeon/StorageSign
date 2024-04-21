@@ -1,14 +1,16 @@
 package wacky.storagesign;
 
+
+import static java.util.Map.entry;
+
+import com.github.teruteru128.logger.Logger;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.bukkit.Material;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.NumberConversions;
-import com.github.teruteru128.logger.Logger;
 import wacky.storagesign.Exception.PotionException;
 
 public class PotionInfo {
@@ -38,16 +40,13 @@ public class PotionInfo {
   private static String SHORT_NAME_JUMP = "JUMP";
   private static String SHORT_NAME_SPEED = "SPEED";
   private static String SHORT_NAME_REGEN = "REGEN";
-  private static final Map<String, String> NBT_NAME_SHORT_NAMES = new HashMap<String, String>() {
-    {
-      put(PotionType.INSTANT_HEAL.toString(), SHORT_NAME_HEAL);
-      put(PotionType.INSTANT_DAMAGE.toString(), SHORT_NAME_DAMAG);
-      put(PotionType.WATER_BREATHING.toString(), SHORT_NAME_BREAT);
-      put(PotionType.JUMP.toString(), SHORT_NAME_JUMP);
-      put(PotionType.SPEED.toString(), SHORT_NAME_SPEED);
-      put(PotionType.REGEN.toString(), SHORT_NAME_REGEN);
-    }
-  };
+  private static final Map<String, String> NBT_NAME_SHORT_NAMES =
+      Map.ofEntries(entry(PotionType.INSTANT_HEAL.toString(), SHORT_NAME_HEAL),
+          entry(PotionType.INSTANT_DAMAGE.toString(), SHORT_NAME_DAMAG),
+          entry(PotionType.WATER_BREATHING.toString(), SHORT_NAME_BREAT),
+          entry(PotionType.JUMP.toString(), SHORT_NAME_JUMP),
+          entry(PotionType.SPEED.toString(), SHORT_NAME_SPEED),
+          entry(PotionType.REGEN.toString(), SHORT_NAME_REGEN));
   protected Material mat;
   protected PotionType pot;
   protected short damage = 0;
