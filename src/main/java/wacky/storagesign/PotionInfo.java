@@ -325,6 +325,20 @@ public class PotionInfo {
         logger.error("Speed Enhance is not Exist!Enhance: " + enhance);
         throw new PotionException("俊敏のポーションに対応する種類が存在しません");
       }
+    } else if (effName.equals(SHORT_NAME_REGEN)) {
+      if (enhance.equals(ENHANCE_NORMAL_CODE)) {
+        logger.debug("Portion:Regen.");
+        return PotionType.REGEN;
+      } else if (enhance.equals(ENHANCE_EXTENSION_CODE)) {
+        logger.debug("Portion:Ext_Regen.");
+        return PotionType.LONG_REGENERATION;
+      } else if (enhance.equals(ENHANCE_STRONG_CODE)) {
+        logger.debug("Portion:Str_Regen.");
+        return PotionType.STRONG_REGENERATION;
+      } else {
+        logger.error("Speed Enhance is not Exist!Enhance: " + enhance);
+        throw new PotionException("再生のポーションに対応する種類が存在しません");
+      }
     } else {
       // それ以外は命名ルールに従って検索をかける
       // 延長、強化があったら先頭にプレフィックスをつけて検索
