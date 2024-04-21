@@ -25,16 +25,6 @@ public class PotionInfo {
       EnumSet.of(PotionType.SPEED, PotionType.LONG_SWIFTNESS, PotionType.STRONG_SWIFTNESS));
   private static final Set<PotionType> REGENERATION_POTIONS = Collections.unmodifiableSet(
       EnumSet.of(PotionType.REGEN, PotionType.LONG_REGENERATION, PotionType.STRONG_REGENERATION));
-  private static final Map<String, String> NBT_NAME_SHORT_NAMES = new HashMap<String, String>() {
-    {
-      put(PotionType.INSTANT_HEAL.toString(), SHORT_NAME_HEAL);
-      put(PotionType.INSTANT_DAMAGE.toString(), SHORT_NAME_DAMAG);
-      put(PotionType.WATER_BREATHING.toString(), SHORT_NAME_BREAT);
-      put(PotionType.JUMP.toString(), SHORT_NAME_JUMP);
-      put(PotionType.SPEED.toString(), SHORT_NAME_SPEED);
-      put(PotionType.REGEN.toString(), SHORT_NAME_REGEN);
-    }
-  };
   protected static String TYPE_SPLASH_PREF = "S";
   protected static String TYPE_LINGERING_PREF = "L";
   private static String ENHANCE_NORMAL_CODE = "0";
@@ -48,6 +38,16 @@ public class PotionInfo {
   private static String SHORT_NAME_JUMP = "JUMP";
   private static String SHORT_NAME_SPEED = "SPEED";
   private static String SHORT_NAME_REGEN = "REGEN";
+  private static final Map<String, String> NBT_NAME_SHORT_NAMES = new HashMap<String, String>() {
+    {
+      put(PotionType.INSTANT_HEAL.toString(), SHORT_NAME_HEAL);
+      put(PotionType.INSTANT_DAMAGE.toString(), SHORT_NAME_DAMAG);
+      put(PotionType.WATER_BREATHING.toString(), SHORT_NAME_BREAT);
+      put(PotionType.JUMP.toString(), SHORT_NAME_JUMP);
+      put(PotionType.SPEED.toString(), SHORT_NAME_SPEED);
+      put(PotionType.REGEN.toString(), SHORT_NAME_REGEN);
+    }
+  };
   protected Material mat;
   protected PotionType pot;
   protected short damage = 0;
