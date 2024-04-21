@@ -751,8 +751,10 @@ public class StorageSign {
         || this.mat == Material.LINGERING_POTION) {
       _logger.debug("This mat is PotionSeries.");
 
-      if (item.getItemMeta() instanceof PotionMeta) {
+      _logger.trace("this.mat.equals(item.getType()): " + this.mat.equals(item.getType()));
+      if (this.mat.equals(item.getType())) {
         PotionMeta pom = (PotionMeta) item.getItemMeta();
+        _logger.trace("pom.getBasePotionType().equals(this.pot): " + pom.getBasePotionType().equals(this.pot));
         if (pom.getBasePotionType().equals(this.pot)) {
           return true;
         }

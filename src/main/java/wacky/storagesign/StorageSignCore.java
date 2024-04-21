@@ -431,11 +431,12 @@ public class StorageSignCore extends JavaPlugin implements Listener {
       }
 
       //ここから搬入
+      boolean isMainSimiller = storageSign.isSimilar(itemMainHand);
       logger.debug("check manual Import.");
-      logger.trace("storageSign.isSimilar(itemMainHand): " + storageSign.isSimilar(itemMainHand));
+      logger.trace("storageSign.isSimilar(itemMainHand): " + isMainSimiller);
       logger.trace("config.getBoolean(\"manual-import\"): " + config.getBoolean("manual-import"));
       logger.trace("config.getBoolean(\"manual-export\"): " + config.getBoolean("manual-export"));
-      if (storageSign.isSimilar(itemMainHand)) {
+      if (isMainSimiller) {
         logger.debug("StorageSign Import.");
 
         logger.trace("!config.getBoolean(\"manual-import\"): " + !config.getBoolean("manual-import"));
@@ -463,9 +464,10 @@ public class StorageSignCore extends JavaPlugin implements Listener {
           logger.debug("push Stack Item.");
 					for (int i = 0; i < player.getInventory().getSize(); i++) {
 						ItemStack item = player.getInventory().getItem(i);
+            boolean itemSimilar = storageSign.isSimilar(item);
             logger.trace(" item: " + item);
-            logger.trace(" storageSign.isSimilar(item): " + storageSign.isSimilar(item));
-						if (storageSign.isSimilar(item)) {
+            logger.trace(" storageSign.isSimilar(item): " + itemSimilar);
+						if (itemSimilar) {
               logger.debug(" same Item Found.Push Item to StorageSign.");
 							storageSign.addAmount(item.getAmount());
 							player.getInventory().clear(i);
