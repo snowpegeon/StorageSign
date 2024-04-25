@@ -50,12 +50,7 @@ public class PotionInfo {
       put(OLD_JUMP_TYPE_NAME, SHORT_NAME_JUMP);
       put(OLD_SPEED_TYPE_NAME, SHORT_NAME_SPEED);
       put(OLD_REGEN_TYPE_NAME, SHORT_NAME_REGEN);
-      put(PotionType.HEALING.toString(), SHORT_NAME_HEAL);
-      put(PotionType.HARMING.toString(), SHORT_NAME_DAMAG);
       put(PotionType.WATER_BREATHING.toString(), SHORT_NAME_BREAT);
-      put(PotionType.LEAPING.toString(), SHORT_NAME_JUMP);
-      put(PotionType.SWIFTNESS.toString(), SHORT_NAME_SPEED);
-      put(PotionType.REGENERATION.toString(), SHORT_NAME_REGEN);
     }
   };
   protected Material mat;
@@ -143,7 +138,7 @@ public class PotionInfo {
   }
 
   public static String getTagData(Material mat, PotionType pot, short damage, int amount) {
-    return mat.toString() + ":" + getNormalType(pot).toString() + ":" + damage + " " + amount;
+    return mat.toString() + ":" + getNormalType(pot) + ":" + damage + " " + amount;
   }
 
   public static String getPotionTypeCode(PotionType pot) {
@@ -154,24 +149,6 @@ public class PotionInfo {
       return ENHANCE_STRONG_CODE;
     }
     return ENHANCE_NORMAL_CODE;
-  }
-
-  // 旧メソッド
-  private PotionType getType(String substring) {
-    if (substring.equals("BREAT")) {
-      return PotionType.WATER_BREATHING;// 例外
-    } else if (substring.equals("HEAL")) {
-      return PotionType.HEALING;
-    } else if (substring.equals("DAMAG")) {
-      return PotionType.HARMING;
-    } else { // 後ろ切れてるかも
-      for (PotionType p : PotionType.values()) {
-        if (p.toString().startsWith(substring)) {
-          return p;
-        }
-      }
-    }
-    return null;
   }
 
   private PotionType getType(String effName, String enhance) {
