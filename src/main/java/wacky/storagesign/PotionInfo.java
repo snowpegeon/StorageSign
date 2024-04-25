@@ -14,17 +14,17 @@ import wacky.storagesign.Exception.PotionException;
 public class PotionInfo {
 
   private static final Set<PotionType> HEAL_POTIONS =
-      Collections.unmodifiableSet(EnumSet.of(PotionType.INSTANT_HEAL, PotionType.STRONG_HEALING));
+      Collections.unmodifiableSet(EnumSet.of(PotionType.HEALING, PotionType.STRONG_HEALING));
   private static final Set<PotionType> BREATH_POTIONS = Collections
       .unmodifiableSet(EnumSet.of(PotionType.WATER_BREATHING, PotionType.LONG_WATER_BREATHING));
   private static final Set<PotionType> DAMAGE_POTIONS =
-      Collections.unmodifiableSet(EnumSet.of(PotionType.INSTANT_DAMAGE, PotionType.STRONG_HARMING));
+      Collections.unmodifiableSet(EnumSet.of(PotionType.HARMING, PotionType.STRONG_HARMING));
   private static final Set<PotionType> JUMP_POTIONS = Collections.unmodifiableSet(
-      EnumSet.of(PotionType.JUMP, PotionType.LONG_LEAPING, PotionType.STRONG_LEAPING));
+      EnumSet.of(PotionType.LEAPING, PotionType.LONG_LEAPING, PotionType.STRONG_LEAPING));
   private static final Set<PotionType> SPEED_POTIONS = Collections.unmodifiableSet(
-      EnumSet.of(PotionType.SPEED, PotionType.LONG_SWIFTNESS, PotionType.STRONG_SWIFTNESS));
+      EnumSet.of(PotionType.SWIFTNESS, PotionType.LONG_SWIFTNESS, PotionType.STRONG_SWIFTNESS));
   private static final Set<PotionType> REGENERATION_POTIONS = Collections.unmodifiableSet(
-      EnumSet.of(PotionType.REGEN, PotionType.LONG_REGENERATION, PotionType.STRONG_REGENERATION));
+      EnumSet.of(PotionType.REGENERATION, PotionType.LONG_REGENERATION, PotionType.STRONG_REGENERATION));
   protected static String TYPE_SPLASH_PREF = "S";
   protected static String TYPE_LINGERING_PREF = "L";
   private static String ENHANCE_NORMAL_CODE = "0";
@@ -38,95 +38,30 @@ public class PotionInfo {
   private static String SHORT_NAME_JUMP = "JUMP";
   private static String SHORT_NAME_SPEED = "SPEED";
   private static String SHORT_NAME_REGEN = "REGEN";
+  private static String OLD_HEAL_TYPE_NAME = "INSTANT_HEAL";
+  private static String OLD_DAMAGE_TYPE_NAME = "INSTANT_DAMAGE";
+  private static String OLD_JUMP_TYPE_NAME = "JUMP";
+  private static String OLD_SPEED_TYPE_NAME = "SPEED";
+  private static String OLD_REGEN_TYPE_NAME = "REGEN";
   private static final Map<String, String> NBT_NAME_SHORT_NAMES = new HashMap<String, String>() {
     {
-      put(PotionType.INSTANT_HEAL.toString(), SHORT_NAME_HEAL);
-      put(PotionType.INSTANT_DAMAGE.toString(), SHORT_NAME_DAMAG);
+      put(OLD_HEAL_TYPE_NAME, SHORT_NAME_HEAL);
+      put(OLD_DAMAGE_TYPE_NAME, SHORT_NAME_DAMAG);
+      put(OLD_JUMP_TYPE_NAME, SHORT_NAME_JUMP);
+      put(OLD_SPEED_TYPE_NAME, SHORT_NAME_SPEED);
+      put(OLD_REGEN_TYPE_NAME, SHORT_NAME_REGEN);
+      put(PotionType.HEALING.toString(), SHORT_NAME_HEAL);
+      put(PotionType.HARMING.toString(), SHORT_NAME_DAMAG);
       put(PotionType.WATER_BREATHING.toString(), SHORT_NAME_BREAT);
-      put(PotionType.JUMP.toString(), SHORT_NAME_JUMP);
-      put(PotionType.SPEED.toString(), SHORT_NAME_SPEED);
-      put(PotionType.REGEN.toString(), SHORT_NAME_REGEN);
+      put(PotionType.LEAPING.toString(), SHORT_NAME_JUMP);
+      put(PotionType.SWIFTNESS.toString(), SHORT_NAME_SPEED);
+      put(PotionType.REGENERATION.toString(), SHORT_NAME_REGEN);
     }
   };
   protected Material mat;
   protected PotionType pot;
   protected short damage = 0;
   protected Logger logger;
-
-  // 旧メソッド
-  public PotionInfo(Material mat, String[] str) {
-    this.mat = mat;
-    if (str.length == 2) {// ダメージ値
-      short old = NumberConversions.toShort(str[1]);
-      if (old >= 16384) {
-        this.mat = Material.SPLASH_POTION;
-      }
-      switch (old % 16) {
-        case 1:
-          pot = PotionType.REGEN;
-          break;
-        case 2:
-          pot = PotionType.SPEED;
-          break;
-        case 3:
-          pot = PotionType.FIRE_RESISTANCE;
-          break;
-        case 4:
-          pot = PotionType.POISON;
-          break;
-        case 5:
-          pot = PotionType.INSTANT_HEAL;
-          break;
-        case 6:
-          pot = PotionType.NIGHT_VISION;
-          break;
-        case 8:
-          pot = PotionType.WEAKNESS;
-          break;
-        case 9:
-          pot = PotionType.STRENGTH;
-          break;
-        case 10:
-          pot = PotionType.SLOWNESS;
-          break;
-        case 11:
-          pot = PotionType.JUMP;
-          break;
-        case 12:
-          pot = PotionType.INSTANT_DAMAGE;
-          break;
-        case 13:
-          pot = PotionType.WATER_BREATHING;
-          break;
-        case 14:
-          pot = PotionType.INVISIBILITY;
-          break;
-
-        default:
-          if (old == 16) {
-            pot = PotionType.AWKWARD;
-          } else if (old == 32) {
-            pot = PotionType.THICK;
-          } else if (old == 64 || old == 8192 || old == 16384) {
-            pot = PotionType.MUNDANE;
-          } else {
-            pot = PotionType.WATER;
-          }
-      }
-
-      if (old % 8192 > 64 && pot.isExtendable()) {
-        damage = 1;// 延長
-      } else if (old % 64 > 32 && pot.isUpgradeable()) {
-        damage = 2;// 強化
-      }
-
-    } else if (str.length == 1) {
-      pot = PotionType.WATER;
-    } else {// タイプとレベル
-      pot = getType(str[1]);
-      damage = NumberConversions.toShort(str[2]);
-    }
-  }
 
   public PotionInfo(Material material, String type, String effName, String enhance, Logger logger) {
 
@@ -160,19 +95,6 @@ public class PotionInfo {
       this.damage = 2;// 強化
     }
 
-  }
-
-  public static String getShortType(PotionType pot) {
-    if (pot == PotionType.WATER_BREATHING) {
-      return "BREAT";
-    } else if (pot == PotionType.INSTANT_HEAL) {
-      return "HEAL";
-    } else if (pot == PotionType.INSTANT_DAMAGE) {
-      return "DAMAG";
-    } else if (pot.toString().length() <= 5) {
-      return pot.toString();
-    }
-    return pot.toString().substring(0, 5);
   }
 
   public static String getShortName(PotionType pot) {
@@ -239,9 +161,9 @@ public class PotionInfo {
     if (substring.equals("BREAT")) {
       return PotionType.WATER_BREATHING;// 例外
     } else if (substring.equals("HEAL")) {
-      return PotionType.INSTANT_HEAL;
+      return PotionType.HEALING;
     } else if (substring.equals("DAMAG")) {
-      return PotionType.INSTANT_DAMAGE;
+      return PotionType.HARMING;
     } else { // 後ろ切れてるかも
       for (PotionType p : PotionType.values()) {
         if (p.toString().startsWith(substring)) {
@@ -267,7 +189,7 @@ public class PotionInfo {
     if (effName.equals(SHORT_NAME_HEAL)) {
       if (enhance.equals(ENHANCE_NORMAL_CODE)) {
         logger.debug("Portion:Heal.");
-        return PotionType.INSTANT_HEAL;
+        return PotionType.HEALING;
       } else if (enhance.equals(ENHANCE_STRONG_CODE)) {
         logger.debug("Portion:Str_Heal.");
         return PotionType.STRONG_HEALING;
@@ -289,7 +211,7 @@ public class PotionInfo {
     } else if (effName.equals(SHORT_NAME_DAMAG)) {
       if (enhance.equals(ENHANCE_NORMAL_CODE)) {
         logger.debug("Portion:Damage.");
-        return PotionType.INSTANT_DAMAGE;
+        return PotionType.HARMING;
       } else if (enhance.equals(ENHANCE_STRONG_CODE)) {
         logger.debug("Portion:Str_Damage.");
         return PotionType.STRONG_HARMING;
@@ -300,7 +222,7 @@ public class PotionInfo {
     } else if (effName.equals(SHORT_NAME_JUMP)) {
       if (enhance.equals(ENHANCE_NORMAL_CODE)) {
         logger.debug("Portion:Jump.");
-        return PotionType.JUMP;
+        return PotionType.LEAPING;
       } else if (enhance.equals(ENHANCE_EXTENSION_CODE)) {
         logger.debug("Portion:Ext_Jump.");
         return PotionType.LONG_LEAPING;
@@ -314,7 +236,7 @@ public class PotionInfo {
     } else if (effName.equals(SHORT_NAME_SPEED)) {
       if (enhance.equals(ENHANCE_NORMAL_CODE)) {
         logger.debug("Portion:Speed.");
-        return PotionType.SPEED;
+        return PotionType.SWIFTNESS;
       } else if (enhance.equals(ENHANCE_EXTENSION_CODE)) {
         logger.debug("Portion:Ext_Speed.");
         return PotionType.LONG_SWIFTNESS;
@@ -328,7 +250,7 @@ public class PotionInfo {
     } else if (effName.equals(SHORT_NAME_REGEN)) {
       if (enhance.equals(ENHANCE_NORMAL_CODE)) {
         logger.debug("Portion:Regen.");
-        return PotionType.REGEN;
+        return PotionType.REGENERATION;
       } else if (enhance.equals(ENHANCE_EXTENSION_CODE)) {
         logger.debug("Portion:Ext_Regen.");
         return PotionType.LONG_REGENERATION;
@@ -363,19 +285,19 @@ public class PotionInfo {
     }
   }
 
-  private static PotionType getNormalType(PotionType pot) {
+  private static String getNormalType(PotionType pot) {
     if (HEAL_POTIONS.contains(pot)) {
-      return PotionType.INSTANT_HEAL;
+      return OLD_HEAL_TYPE_NAME;
     } else if (BREATH_POTIONS.contains(pot)) {
-      return PotionType.WATER_BREATHING;
+      return PotionType.WATER_BREATHING.toString();
     } else if (DAMAGE_POTIONS.contains(pot)) {
-      return PotionType.INSTANT_DAMAGE;
+      return OLD_DAMAGE_TYPE_NAME;
     } else if (JUMP_POTIONS.contains(pot)) {
-      return PotionType.JUMP;
+      return OLD_JUMP_TYPE_NAME;
     } else if (SPEED_POTIONS.contains(pot)) {
-      return PotionType.SPEED;
+      return OLD_SPEED_TYPE_NAME;
     } else if (REGENERATION_POTIONS.contains(pot)) {
-      return PotionType.REGEN;
+      return OLD_REGEN_TYPE_NAME;
     } else {
       // それ以外のもの
       // 延長・強化のプレフィックス除去
@@ -386,8 +308,9 @@ public class PotionInfo {
         name = name.substring(ENHANCE_STRONG_PREF.length());
       }
       for (PotionType p : PotionType.values()) {
-        if (p.toString().startsWith(name)) {
-          return p;
+        String str = p.toString();
+        if (str.startsWith(name)) {
+          return str;
         }
       }
       throw new PotionException("ポーションデータが存在しません");
