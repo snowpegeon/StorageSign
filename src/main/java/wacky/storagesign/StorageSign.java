@@ -377,7 +377,7 @@ public class StorageSign {
    * @return Material
    */
   public Material getMaterial() {
-    _logger.debug("return this.mat");
+    _logger.debug(" return this.mat");
     return this.mat;
   }
 
@@ -717,9 +717,9 @@ public class StorageSign {
    * @return true：回収できるよ/false：回収できないよ
    */
   public boolean isSimilar(ItemStack item) {
-    _logger.debug("isSimilar:start");
+    _logger.debug(" isSimilar:start");
     if (item == null) {
-      _logger.debug("Item isn't Similar");
+      _logger.debug(" Item isn't Similar");
       return false;
 
     }
@@ -740,35 +740,37 @@ public class StorageSign {
 
         }
       }
-      _logger.debug("Item isn't Similar");
+      _logger.debug(" Item isn't Similar");
       return false;
 
     } else if (isShulker(this.mat)) {
-      _logger.debug("Shulker");
+      _logger.debug(" Shulker");
       // 後回し
 
     } else if (this.mat == Material.POTION || this.mat == Material.SPLASH_POTION
         || this.mat == Material.LINGERING_POTION) {
-      _logger.debug("This mat is PotionSeries.");
+      _logger.debug(" This mat is PotionSeries.");
 
-      _logger.trace("this.mat.equals(item.getType()): " + this.mat.equals(item.getType()));
+      _logger.trace(" this.mat.equals(item.getType()): " + this.mat.equals(item.getType()));
       if (this.mat.equals(item.getType())) {
         PotionMeta pom = (PotionMeta) item.getItemMeta();
-        _logger.trace("pom.getBasePotionType().equals(this.pot): " + pom.getBasePotionType().equals(this.pot));
+        _logger.trace(" pom.getBasePotionType().equals(this.pot): " + pom.getBasePotionType().equals(this.pot));
         if (pom.getBasePotionType().equals(this.pot)) {
           return true;
         }
       }
     }
 
-    return getContents().isSimilar(item);
+    boolean isSimilar = getContents().isSimilar(item);
+    _logger.trace(" isSimilar: " + isSimilar);
+    return isSimilar;
   }
 
   /**
    * フィールド変数：damageのgetter.
    */
   public short getDamage() {
-    _logger.debug("getDamage");
+    _logger.debug(" getDamage");
     return this.damage;
   }
 
@@ -879,7 +881,7 @@ public class StorageSign {
    * フィールド変数：smatのgetter.
    */
   public Material getSmat() {
-    _logger.debug("getSmat");
+    _logger.debug(" getSmat");
     return this.smat;
   }
 

@@ -388,8 +388,9 @@ public class StorageSignCore extends JavaPlugin implements Listener {
             logger.debug("store all Empty Sign.SearchPlayer Inventory.");
 						for (int i = 0; i < player.getInventory().getSize(); i++) {
 							ItemStack item = player.getInventory().getItem(i);
-              logger.trace("storageSign.isSimilar(item)" + storageSign.isSimilar(item));
-							if (storageSign.isSimilar(item)) {
+              boolean isSimilar = storageSign.isSimilar(item);
+              logger.trace("storageSign.isSimilar(item)" + isSimilar);
+							if (isSimilar) {
                 logger.debug("find Empty Sign.");
 								storageSign.addAmount(item.getAmount());
 								player.getInventory().clear(i);
@@ -1012,8 +1013,6 @@ public class StorageSignCore extends JavaPlugin implements Listener {
       }
 
       logger.debug("Export Item");
-      int firstStackIndex = 0;
-      ItemStack firstStackItem = null;
       //PANPANによるロスト回避
       for (int i = 0; i < contents.length; i++) {
         logger.trace("i: " + i);
@@ -1033,32 +1032,10 @@ public class StorageSignCore extends JavaPlugin implements Listener {
         return;
       }
 
-      logger.debug("firstStackItem Set.");
-      for (ItemStack itm : inv.getContents()) {
-        logger.trace(" itm: " + itm);
-        logger.trace(" item.isSimilar(itm): " + item.isSimilar(itm));
-        if (item.isSimilar(itm)) {
-          logger.debug(" firstStackItem Set.");
-          firstStackItem = itm.clone();
-          logger.trace(" firstStackItem: " + firstStackItem);
-          logger.trace(" firstStackIndex: " + firstStackIndex);
-          break;
-        }
-        firstStackIndex++;
-      }
-      logger.trace("firstStackItem.getAmount()" + firstStackItem.getAmount());
-      logger.trace("item.getAmount(): " + item.getAmount());
-      firstStackItem.setAmount(firstStackItem.getAmount() + item.getAmount());
-
       logger.debug("Export Item to Inventory.");
-      logger.trace("invAmount:" + inv.getItem(firstStackIndex).getAmount());
-      logger.trace("ssAmount:" + storageSign.getAmount());
-
-      inv.setItem(firstStackIndex, firstStackItem);
-      storageSign.addAmount(-item.getAmount());
-
-      logger.trace("afterInvAmount:" + inv.getItem(firstStackIndex).getAmount());
-      logger.trace("afterSSAmount:" + storageSign.getAmount());
+      ItemStack cItem = item.clone();
+      inv.addItem(cItem);
+      storageSign.addAmount(-cItem.getAmount());
     }
     for (int i = 0; i < 4; i++) {
       logger.trace("set Line i:" + i + ". Text: " + storageSign.getSigntext(i));
