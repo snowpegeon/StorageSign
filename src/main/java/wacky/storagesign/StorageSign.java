@@ -2,6 +2,7 @@ package wacky.storagesign;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -22,6 +23,8 @@ import com.github.teruteru128.logger.Logger;
  */
 public class StorageSign {
 
+  private static final org.apache.logging.log4j.Logger log = LogManager.getLogger(
+      StorageSign.class);
   /**
    *
    */
@@ -764,16 +767,14 @@ public class StorageSign {
 
     // SSなのかだけ、別ロジックで判定
     ItemStack contents = getContents();
-    if(isStorageSign(item, _logger) && contents.getType() == item.getType()){
+    boolean isStorageSign = isStorageSign(item, _logger);
+    _logger.trace("isStorageSign: " + isStorageSign);
+    _logger.trace("contents.getType() == item.getType(): " + (contents.getType() == item.getType()));
+    if(isStorageSign&& contents.getType() == item.getType()){
       StorageSign cSign = new StorageSign(contents, _logger);
       StorageSign iSign = new StorageSign(item, _logger);
-      if(cSign.isEmpty() == iSign.isEmpty()){
-        return true;
-//      } else if(cSign.getMaterial() == iSign.getMaterial()){
-//        return true;
-      } else {
-        return  false;
-      }
+      _logger.trace("cSign.isEmpty() == iSign.isEmpty(): " + (cSign.isEmpty() == iSign.isEmpty()));
+      return cSign.isEmpty() == iSign.isEmpty();
     }
 
     // それ以外のItemはisSimilarで判定
