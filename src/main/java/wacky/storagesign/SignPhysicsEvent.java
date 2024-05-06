@@ -21,6 +21,6 @@ public class SignPhysicsEvent implements Listener {
   @EventHandler
   public void onBlockPhysics(BlockPhysicsEvent event) {
     _logger.debug("onBlockPhysics:Start");
-    event.setCancelled(plugin.isStorageSign(event.getBlock()));
+    event.setCancelled(StorageSign.isStorageSign(event.getBlock(), _logger));
   }
 }

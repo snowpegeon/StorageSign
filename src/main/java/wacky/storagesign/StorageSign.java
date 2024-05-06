@@ -3,6 +3,7 @@ package wacky.storagesign;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.block.sign.Side;
 import org.bukkit.enchantments.Enchantment;
@@ -761,7 +762,22 @@ public class StorageSign {
       }
     }
 
-    boolean isSimilar = getContents().isSimilar(item);
+    // SSなのかだけ、別ロジックで判定
+    ItemStack contents = getContents();
+    if(isStorageSign(item, _logger) && contents.getType() == item.getType()){
+      StorageSign cSign = new StorageSign(contents, _logger);
+      StorageSign iSign = new StorageSign(item, _logger);
+      if(cSign.isEmpty() == iSign.isEmpty()){
+        return true;
+//      } else if(cSign.getMaterial() == iSign.getMaterial()){
+//        return true;
+      } else {
+        return  false;
+      }
+    }
+
+    // それ以外のItemはisSimilarで判定
+    boolean isSimilar = contents.isSimilar(item);
     _logger.trace(" isSimilar: " + isSimilar);
     return isSimilar;
   }
@@ -919,4 +935,119 @@ public class StorageSign {
     _logger.debug("Item isn't Shulker");
     return false;
   }
+
+  public static boolean isStorageSign(ItemStack item, Logger logger) {
+    logger.debug(" isStorageSign(ItemStack):Start");
+    if (item == null) {
+      logger.debug(" item is null.");
+      return false;
+    }
+
+    boolean isSignPost =  isSignPost(item.getType(), logger);
+    logger.trace(" isSignPost:" +isSignPost);
+    if (isSignPost) {
+
+      logger.trace(" !item.getItemMeta().hasDisplayName(): " + !item.getItemMeta().hasDisplayName());
+      if (!item.getItemMeta().hasDisplayName()) {
+        logger.debug(" itemMeta hasn't displayName.");
+        return false;
+      }
+      logger.trace(
+          " !item.getItemMeta().getDisplayName().matches(\"StorageSign\"): " + !item.getItemMeta()
+              .getDisplayName().matches("StorageSign"));
+      if (!item.getItemMeta().getDisplayName().matches("StorageSign")) {
+        logger.debug(" itemMetaName hasn't StorageSign.");
+        return false;
+      }
+      logger.trace(" item.getItemMeta().hasLore(): " + item.getItemMeta().hasLore());
+      return item.getItemMeta().hasLore();
+    }
+    logger.debug(" isSignPost is false.");
+    return false;
+  }
+
+  public static boolean isStorageSign(Block block, Logger logger) {
+    logger.debug(" isStorageSign(Block):Start");
+
+    boolean isSignPost = isSignPost(block.getType(), logger);
+    boolean isWallSign =  isWallSign(block.getType(), logger);
+    logger.trace(" block.getType(): " + block.getType());
+    logger.trace(" isSignPost(block.getType()): " + isSignPost);
+    logger.trace(" isWallSign(block.getType()) :" + isWallSign);
+    if (isSignPost || isWallSign) {
+      logger.debug(" This Block is Sign.");
+      Sign sign = (Sign) block.getState();
+
+      logger.trace(" sign.getSide(Side.FRONT).getLine(0).matches(\"StorageSign\"): " + sign.getSide(
+          Side.FRONT).getLine(0).matches("StorageSign"));
+      if (sign.getSide(Side.FRONT).getLine(0).matches("StorageSign")) {
+        logger.debug(" This Sign is StorageSign.");
+        return true;
+      }
+    }
+
+    logger.debug(" This Block isn't StorageSign.");
+    return false;
+  }
+
+  public static boolean isSignPost(Block block, Logger logger) {
+    logger.debug("  isSignPost(Block)");
+    Material mat = block.getType();
+    return isSignPost(mat, logger);
+  }
+
+  public static boolean isWallSign(Block block, Logger logger) {
+    Material mat = block.getType();
+    return isWallSign(mat, logger);
+  }
+
+  //看板も8種類になったし、mat版おいとく
+  public static boolean isSignPost(Material mat, Logger logger) {
+    logger.debug("  isSignPost(Material): Start");
+
+    logger.trace("  mat: " + mat);
+    switch (mat) {
+      case OAK_SIGN:
+      case BIRCH_SIGN:
+      case SPRUCE_SIGN:
+      case JUNGLE_SIGN:
+      case ACACIA_SIGN:
+      case DARK_OAK_SIGN:
+      case CRIMSON_SIGN:
+      case WARPED_SIGN:
+      case MANGROVE_SIGN:
+      case CHERRY_SIGN:
+      case BAMBOO_SIGN:
+        logger.debug("  this Material is Sign.");
+        return true;
+      default:
+    }
+    logger.debug("  this Material isn't Sign.");
+    return false;
+  }
+
+  public static boolean isWallSign(Material mat, Logger logger) {
+    logger.debug("  isWallSign(Material): Start");
+
+    logger.trace("  mat: " + mat);
+    switch (mat) {
+      case OAK_WALL_SIGN:
+      case BIRCH_WALL_SIGN:
+      case SPRUCE_WALL_SIGN:
+      case JUNGLE_WALL_SIGN:
+      case ACACIA_WALL_SIGN:
+      case DARK_OAK_WALL_SIGN:
+      case CRIMSON_WALL_SIGN:
+      case WARPED_WALL_SIGN:
+      case MANGROVE_WALL_SIGN:
+      case CHERRY_WALL_SIGN:
+      case BAMBOO_WALL_SIGN:
+        logger.debug("  this Material is WallSign.");
+        return true;
+      default:
+    }
+    logger.debug("  this Material isn't WallSign.");
+    return false;
+  }
+
 }
