@@ -2,7 +2,6 @@ package wacky.storagesign;
 
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.bukkit.Material;
@@ -43,16 +42,14 @@ public class PotionInfo {
   private static String OLD_JUMP_TYPE_NAME = "JUMP";
   private static String OLD_SPEED_TYPE_NAME = "SPEED";
   private static String OLD_REGEN_TYPE_NAME = "REGEN";
-  private static final Map<String, String> NBT_NAME_SHORT_NAMES = new HashMap<String, String>() {
-    {
-      put(OLD_HEAL_TYPE_NAME, SHORT_NAME_HEAL);
-      put(OLD_DAMAGE_TYPE_NAME, SHORT_NAME_DAMAG);
-      put(OLD_JUMP_TYPE_NAME, SHORT_NAME_JUMP);
-      put(OLD_SPEED_TYPE_NAME, SHORT_NAME_SPEED);
-      put(OLD_REGEN_TYPE_NAME, SHORT_NAME_REGEN);
-      put(PotionType.WATER_BREATHING.toString(), SHORT_NAME_BREAT);
-    }
-  };
+  private static final Map<String, String> NBT_NAME_SHORT_NAMES = Map.of(
+          OLD_HEAL_TYPE_NAME, SHORT_NAME_HEAL,
+          OLD_DAMAGE_TYPE_NAME, SHORT_NAME_DAMAG,
+          OLD_JUMP_TYPE_NAME, SHORT_NAME_JUMP,
+          OLD_SPEED_TYPE_NAME, SHORT_NAME_SPEED,
+          OLD_REGEN_TYPE_NAME, SHORT_NAME_REGEN,
+          PotionType.WATER_BREATHING.toString(), SHORT_NAME_BREAT
+  );
   protected Material mat;
   protected PotionType pot;
   protected short damage = 0;
