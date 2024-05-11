@@ -768,13 +768,20 @@ public class StorageSign {
     // SSなのかだけ、別ロジックで判定
     ItemStack contents = getContents();
     boolean isStorageSign = isStorageSign(item, _logger);
+    boolean contentIsStorageSign = isStorageSign(contents, _logger);
+    boolean isSignPost = isSignPost(item.getType(), _logger);
     _logger.trace("isStorageSign: " + isStorageSign);
     _logger.trace("contents.getType() == item.getType(): " + (contents.getType() == item.getType()));
-    if(isStorageSign&& contents.getType() == item.getType()){
-      StorageSign cSign = new StorageSign(contents, _logger);
-      StorageSign iSign = new StorageSign(item, _logger);
-      _logger.trace("cSign.isEmpty() == iSign.isEmpty(): " + (cSign.isEmpty() == iSign.isEmpty()));
-      return cSign.isEmpty() == iSign.isEmpty();
+    if(isStorageSign && contentIsStorageSign){
+      if(contents.getType() == item.getType()){
+        StorageSign cSign = new StorageSign(contents, _logger);
+        StorageSign iSign = new StorageSign(item, _logger);
+        _logger.trace("cSign.isEmpty() == iSign.isEmpty(): " + (cSign.isEmpty() == iSign.isEmpty()));
+        return cSign.isEmpty() == iSign.isEmpty();
+      }
+//    } else if(isSignPost) {
+//      // StorageSignじゃなくて、ただの看板の場合はfalse.
+//      return false;
     }
 
     // それ以外のItemはisSimilarで判定
