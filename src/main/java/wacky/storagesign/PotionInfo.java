@@ -2,7 +2,6 @@ package wacky.storagesign;
 
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.bukkit.Material;
@@ -11,20 +10,22 @@ import org.bukkit.util.NumberConversions;
 import com.github.teruteru128.logger.Logger;
 import wacky.storagesign.Exception.PotionException;
 
+import static org.bukkit.potion.PotionType.*;
+
 public class PotionInfo {
 
   private static final Set<PotionType> HEAL_POTIONS =
-      Collections.unmodifiableSet(EnumSet.of(PotionType.HEALING, PotionType.STRONG_HEALING));
+      Collections.unmodifiableSet(EnumSet.of(HEALING, STRONG_HEALING));
   private static final Set<PotionType> BREATH_POTIONS = Collections
-      .unmodifiableSet(EnumSet.of(PotionType.WATER_BREATHING, PotionType.LONG_WATER_BREATHING));
+      .unmodifiableSet(EnumSet.of(WATER_BREATHING, LONG_WATER_BREATHING));
   private static final Set<PotionType> DAMAGE_POTIONS =
-      Collections.unmodifiableSet(EnumSet.of(PotionType.HARMING, PotionType.STRONG_HARMING));
+      Collections.unmodifiableSet(EnumSet.of(HARMING, STRONG_HARMING));
   private static final Set<PotionType> JUMP_POTIONS = Collections.unmodifiableSet(
-      EnumSet.of(PotionType.LEAPING, PotionType.LONG_LEAPING, PotionType.STRONG_LEAPING));
+      EnumSet.of(LEAPING, LONG_LEAPING, STRONG_LEAPING));
   private static final Set<PotionType> SPEED_POTIONS = Collections.unmodifiableSet(
-      EnumSet.of(PotionType.SWIFTNESS, PotionType.LONG_SWIFTNESS, PotionType.STRONG_SWIFTNESS));
+      EnumSet.of(SWIFTNESS, LONG_SWIFTNESS, STRONG_SWIFTNESS));
   private static final Set<PotionType> REGENERATION_POTIONS = Collections.unmodifiableSet(
-      EnumSet.of(PotionType.REGENERATION, PotionType.LONG_REGENERATION, PotionType.STRONG_REGENERATION));
+      EnumSet.of(REGENERATION, LONG_REGENERATION, STRONG_REGENERATION));
   protected static String TYPE_SPLASH_PREF = "S";
   protected static String TYPE_LINGERING_PREF = "L";
   private static String ENHANCE_NORMAL_CODE = "0";
@@ -43,16 +44,14 @@ public class PotionInfo {
   private static String OLD_JUMP_TYPE_NAME = "JUMP";
   private static String OLD_SPEED_TYPE_NAME = "SPEED";
   private static String OLD_REGEN_TYPE_NAME = "REGEN";
-  private static final Map<String, String> NBT_NAME_SHORT_NAMES = new HashMap<String, String>() {
-    {
-      put(OLD_HEAL_TYPE_NAME, SHORT_NAME_HEAL);
-      put(OLD_DAMAGE_TYPE_NAME, SHORT_NAME_DAMAG);
-      put(OLD_JUMP_TYPE_NAME, SHORT_NAME_JUMP);
-      put(OLD_SPEED_TYPE_NAME, SHORT_NAME_SPEED);
-      put(OLD_REGEN_TYPE_NAME, SHORT_NAME_REGEN);
-      put(PotionType.WATER_BREATHING.toString(), SHORT_NAME_BREAT);
-    }
-  };
+  private static final Map<String, String> NBT_NAME_SHORT_NAMES = Map.of(
+          OLD_HEAL_TYPE_NAME, SHORT_NAME_HEAL,
+          OLD_DAMAGE_TYPE_NAME, SHORT_NAME_DAMAG,
+          OLD_JUMP_TYPE_NAME, SHORT_NAME_JUMP,
+          OLD_SPEED_TYPE_NAME, SHORT_NAME_SPEED,
+          OLD_REGEN_TYPE_NAME, SHORT_NAME_REGEN,
+          WATER_BREATHING.toString(), SHORT_NAME_BREAT
+  );
   protected Material mat;
   protected PotionType pot;
   protected short damage = 0;
@@ -166,10 +165,10 @@ public class PotionInfo {
     if (effName.equals(SHORT_NAME_HEAL)) {
       if (enhance.equals(ENHANCE_NORMAL_CODE)) {
         logger.debug("Portion:Heal.");
-        return PotionType.HEALING;
+        return HEALING;
       } else if (enhance.equals(ENHANCE_STRONG_CODE)) {
         logger.debug("Portion:Str_Heal.");
-        return PotionType.STRONG_HEALING;
+        return STRONG_HEALING;
       } else {
         logger.error("Heal Enhance is not Exist!Enhance: " + enhance);
         throw new PotionException("治癒のポーションに対応する種類が存在しません");
@@ -177,10 +176,10 @@ public class PotionInfo {
     } else if (effName.equals(SHORT_NAME_BREAT)) {
       if (enhance.equals(ENHANCE_NORMAL_CODE)) {
         logger.debug("Portion:Breat.");
-        return PotionType.WATER_BREATHING;
+        return WATER_BREATHING;
       } else if (enhance.equals(ENHANCE_EXTENSION_CODE)) {
         logger.debug("Portion:Ext_Breat.");
-        return PotionType.LONG_WATER_BREATHING;
+        return LONG_WATER_BREATHING;
       } else {
         logger.error("Breat Enhance is not Exist!Enhance: " + enhance);
         throw new PotionException("水中呼吸のポーションに対応する種類が存在しません");
@@ -188,10 +187,10 @@ public class PotionInfo {
     } else if (effName.equals(SHORT_NAME_DAMAG)) {
       if (enhance.equals(ENHANCE_NORMAL_CODE)) {
         logger.debug("Portion:Damage.");
-        return PotionType.HARMING;
+        return HARMING;
       } else if (enhance.equals(ENHANCE_STRONG_CODE)) {
         logger.debug("Portion:Str_Damage.");
-        return PotionType.STRONG_HARMING;
+        return STRONG_HARMING;
       } else {
         logger.error("Damage Enhance is not Exist!Enhance: " + enhance);
         throw new PotionException("ダメージのポーションに対応する種類が存在しません");
@@ -199,13 +198,13 @@ public class PotionInfo {
     } else if (effName.equals(SHORT_NAME_JUMP)) {
       if (enhance.equals(ENHANCE_NORMAL_CODE)) {
         logger.debug("Portion:Jump.");
-        return PotionType.LEAPING;
+        return LEAPING;
       } else if (enhance.equals(ENHANCE_EXTENSION_CODE)) {
         logger.debug("Portion:Ext_Jump.");
-        return PotionType.LONG_LEAPING;
+        return LONG_LEAPING;
       } else if (enhance.equals(ENHANCE_STRONG_CODE)) {
         logger.debug("Portion:Str_Jump.");
-        return PotionType.STRONG_LEAPING;
+        return STRONG_LEAPING;
       } else {
         logger.error("Jump Enhance is not Exist!Enhance: " + enhance);
         throw new PotionException("跳躍のポーションに対応する種類が存在しません");
@@ -213,13 +212,13 @@ public class PotionInfo {
     } else if (effName.equals(SHORT_NAME_SPEED)) {
       if (enhance.equals(ENHANCE_NORMAL_CODE)) {
         logger.debug("Portion:Speed.");
-        return PotionType.SWIFTNESS;
+        return SWIFTNESS;
       } else if (enhance.equals(ENHANCE_EXTENSION_CODE)) {
         logger.debug("Portion:Ext_Speed.");
-        return PotionType.LONG_SWIFTNESS;
+        return LONG_SWIFTNESS;
       } else if (enhance.equals(ENHANCE_STRONG_CODE)) {
         logger.debug("Portion:Str_Speed.");
-        return PotionType.STRONG_SWIFTNESS;
+        return STRONG_SWIFTNESS;
       } else {
         logger.error("Speed Enhance is not Exist!Enhance: " + enhance);
         throw new PotionException("俊敏のポーションに対応する種類が存在しません");
@@ -227,13 +226,13 @@ public class PotionInfo {
     } else if (effName.equals(SHORT_NAME_REGEN)) {
       if (enhance.equals(ENHANCE_NORMAL_CODE)) {
         logger.debug("Portion:Regen.");
-        return PotionType.REGENERATION;
+        return REGENERATION;
       } else if (enhance.equals(ENHANCE_EXTENSION_CODE)) {
         logger.debug("Portion:Ext_Regen.");
-        return PotionType.LONG_REGENERATION;
+        return LONG_REGENERATION;
       } else if (enhance.equals(ENHANCE_STRONG_CODE)) {
         logger.debug("Portion:Str_Regen.");
-        return PotionType.STRONG_REGENERATION;
+        return STRONG_REGENERATION;
       } else {
         logger.error("Speed Enhance is not Exist!Enhance: " + enhance);
         throw new PotionException("再生のポーションに対応する種類が存在しません");
@@ -249,7 +248,7 @@ public class PotionInfo {
         name = ENHANCE_STRONG_PREF + name;
       }
       logger.trace("name: " + name);
-      for (PotionType p : PotionType.values()) {
+      for (PotionType p : values()) {
         logger.trace(" p: " + p);
         logger.trace(" p.toString().startsWith(name): " + p.toString().startsWith(name));
         if (p.toString().startsWith(name)) {
@@ -266,7 +265,7 @@ public class PotionInfo {
     if (HEAL_POTIONS.contains(pot)) {
       return OLD_HEAL_TYPE_NAME;
     } else if (BREATH_POTIONS.contains(pot)) {
-      return PotionType.WATER_BREATHING.toString();
+      return WATER_BREATHING.toString();
     } else if (DAMAGE_POTIONS.contains(pot)) {
       return OLD_DAMAGE_TYPE_NAME;
     } else if (JUMP_POTIONS.contains(pot)) {
@@ -284,7 +283,7 @@ public class PotionInfo {
       } else if (name.startsWith(ENHANCE_STRONG_PREF)) {
         name = name.substring(ENHANCE_STRONG_PREF.length());
       }
-      for (PotionType p : PotionType.values()) {
+      for (PotionType p : values()) {
         String str = p.toString();
         if (str.startsWith(name)) {
           return str;
