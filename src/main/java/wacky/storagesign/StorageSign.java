@@ -28,53 +28,56 @@ import static org.bukkit.Material.*;
  */
 public class StorageSign {
 
-  private static final org.apache.logging.log4j.Logger log = LogManager.getLogger(
-      StorageSign.class);
-
+  /**
+   * block_entity_dataタグが付いて、単純な比較では収納ができないアイテム一覧.
+   */
   private static final Set<Material> block_entity_data_Materials = Collections.unmodifiableSet(
       EnumSet.of(BEE_NEST, BEEHIVE));
+
   /**
-   *
+   * 看板のアイテム素材.
    */
   protected Material smat;
+
   /**
-   *
+   * 看板に収納されるアイテム素材.
    */
   protected Material mat;
+
   /**
-   *
+   * 看板に設定されるダメージ値.
    */
   protected short damage;
   /**
-   *
+   * 看板に収納されているエンチャント本のエンチャント情報.
    */
   protected Enchantment ench;
   /**
-   *
+   * 看板に収納されているポーションの種類.
    */
   protected PotionType pot;
+
   /**
-   *
+   * 看板に収納されているアイテム数.
    */
   protected int amount;
+
   /**
-   *
+   * SSのアイテムスタック数.
    */
   protected int stack;
   /**
-   *
+   * 看板の中身が空か.
    */
   protected boolean isEmpty;
 
   /**
-   *
+   * ログ出力用ロガー.
    */
   private Logger _logger;
 
-  // StorageSignだと確認してから使っちくりー
-
   /**
-   *
+   * ItemStackに設定されている看板の情報からStorageSignを生成する.
    */
   public StorageSign(ItemStack item, Logger logger) {
     this._logger = logger;
@@ -125,13 +128,8 @@ public class StorageSign {
     logger.debug("StorageSign:end");
   }
 
-  // Sto(ry
-  /*
-   * public StorageSign(Sign sign) { this(sign,Material.OAK_SIGN); }
-   */
-
   /**
-   *
+   * ブロックとして存在している看板の情報からStorageSignを生成する.
    */
   public StorageSign(Sign sign, Material signmat, Logger logger) {
     this._logger = logger;
@@ -469,16 +467,6 @@ public class StorageSign {
     } else if (this.mat == BAMBOO_SIGN && this.damage == 1) {
       _logger.debug("BambooStorageSign");
       return "BambooStorageSign";
-
-      // else if (mat == Material.LEGACY_STAINED_GLASS_PANE) return damage == 0 ? "STAINGLASS_PANE"
-      // : "STAINGLASS_P:" + damage;
-      // else if (mat == Material.LEGACY_REDSTONE_COMPARATOR) return "RS_COMPARATOR";
-      // else if (mat == Material.LEGACY_REDSTONE_TORCH_ON) return "REDSTONE_TORCH";
-      // else if (mat == Material.LEGACY_HUGE_MUSHROOM_1) return damage == 0 ? "BROWN_MUSH_BLOC" :
-      // "BROWN_MUSH_B:" + damage;
-      // else if (mat == Material.LEGACY_HUGE_MUSHROOM_2) return damage == 0 ? "RED_MUSH_BLOCK" :
-      // "RED_MUSH_BLO:" + damage;
-
     } else if (this.mat == ENCHANTED_BOOK) {
       _logger.debug("ENCHBOOK + data");
       return "ENCHBOOK:" + EnchantInfo.getShortType(this.ench) + ":" + this.damage;
@@ -755,10 +743,6 @@ public class StorageSign {
       _logger.debug(" Item isn't Similar");
       return false;
 
-    } else if (isShulker(this.mat)) {
-      _logger.debug(" Shulker");
-      // 後回し
-
     } else if (this.mat == POTION || this.mat == SPLASH_POTION
         || this.mat == LINGERING_POTION) {
       _logger.debug(" This mat is PotionSeries.");
@@ -791,9 +775,6 @@ public class StorageSign {
         _logger.trace("cSign.isEmpty() == iSign.isEmpty(): " + (cSign.isEmpty() == iSign.isEmpty()));
         return cSign.isEmpty() == iSign.isEmpty();
       }
-//    } else if(isSignPost) {
-//      // StorageSignじゃなくて、ただの看板の場合はfalse.
-//      return false;
     }
 
     // それ以外のItemはisSimilarで判定
@@ -922,40 +903,8 @@ public class StorageSign {
   }
 
   /**
-   * マテリアルがシュルカーボックスかを検査します.
-   *
-   * @return true：シュルカーボックスにだよ/false：シュルカーボックスじゃないよ
+   * 渡されたItemStackがStorageSignか判断.
    */
-  private boolean isShulker(Material mat) {
-    _logger.debug("isShulker:start");
-    switch (mat) {
-      case SHULKER_BOX:
-      case WHITE_SHULKER_BOX:
-      case ORANGE_SHULKER_BOX:
-      case MAGENTA_SHULKER_BOX:
-      case LIGHT_BLUE_SHULKER_BOX:
-      case YELLOW_SHULKER_BOX:
-      case LIME_SHULKER_BOX:
-      case PINK_SHULKER_BOX:
-      case GRAY_SHULKER_BOX:
-      case LIGHT_GRAY_SHULKER_BOX:
-      case CYAN_SHULKER_BOX:
-      case PURPLE_SHULKER_BOX:
-      case BLUE_SHULKER_BOX:
-      case BROWN_SHULKER_BOX:
-      case GREEN_SHULKER_BOX:
-      case RED_SHULKER_BOX:
-      case BLACK_SHULKER_BOX:
-        _logger.debug("Item is Shulker");
-        return true;
-
-      default:
-
-    }
-    _logger.debug("Item isn't Shulker");
-    return false;
-  }
-
   public static boolean isStorageSign(ItemStack item, Logger logger) {
     logger.debug(" isStorageSign(ItemStack):Start");
     if (item == null) {
@@ -986,6 +935,9 @@ public class StorageSign {
     return false;
   }
 
+  /**
+   * 渡されたBlockがStorageSignか判断.
+   */
   public static boolean isStorageSign(Block block, Logger logger) {
     logger.debug(" isStorageSign(Block):Start");
 
@@ -1010,17 +962,26 @@ public class StorageSign {
     return false;
   }
 
+  /**
+   * 渡されたBlockが看板か判断.
+   */
   public static boolean isSignPost(Block block, Logger logger) {
     logger.debug("  isSignPost(Block)");
     Material mat = block.getType();
     return isSignPost(mat, logger);
   }
 
+  /**
+   * 渡されたBlockが壁掛け看板か判断.
+   */
   public static boolean isWallSign(Block block, Logger logger) {
     Material mat = block.getType();
     return isWallSign(mat, logger);
   }
 
+  /**
+   * 渡されたMaterialが看板か判断.
+   */
   //看板も8種類になったし、mat版おいとく
   public static boolean isSignPost(Material mat, Logger logger) {
     logger.debug("  isSignPost(Material): Start");
@@ -1046,6 +1007,9 @@ public class StorageSign {
     return false;
   }
 
+  /**
+   * 渡されたMaterialが壁掛け看板か判断.
+   */
   public static boolean isWallSign(Material mat, Logger logger) {
     logger.debug("  isWallSign(Material): Start");
 
