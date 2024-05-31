@@ -64,18 +64,15 @@ public class StorageSignCore extends JavaPlugin implements Listener {
       StorageSignCore.class);
   static BannerMeta ominousBannerMeta;
   public Logger logger;
-  FileConfiguration config;
   private boolean _fallingBlockSS;
 
   @Override
   public void onEnable() {
-    config = this.getConfig();
-    config.options().copyDefaults(true);
-    config.options().setHeader(Arrays.asList("StorageSign Configuration"));
-    this.saveConfig();
+    // ConfigLoader初期化
+    ConfigLoader.setup(this);
 
     // ロガーの初期設定
-    String logLevel = config.getString("log-level");
+    String logLevel = ConfigLoader.getLogLevel();
     // ログ取得
     Logger.register(this, logLevel);
     logger = Logger.getInstance(this);
@@ -92,7 +89,7 @@ public class StorageSignCore extends JavaPlugin implements Listener {
     Material[] sign = {Material.OAK_SIGN, Material.BIRCH_SIGN, Material.SPRUCE_SIGN,
         Material.JUNGLE_SIGN, Material.ACACIA_SIGN, Material.DARK_OAK_SIGN, Material.CRIMSON_SIGN,
         Material.WARPED_SIGN, Material.MANGROVE_SIGN, Material.CHERRY_SIGN, Material.BAMBOO_SIGN};
-    logger.trace("hardrecipe:" + config.getBoolean("hardrecipe"));
+    logger.trace("hardrecipe:" + ConfigLoader.getHardRecipe());
     for (int i = 0; i < 11; i++) {
       logger.trace("signRecipi name:" + sign[i]);
 
@@ -103,7 +100,7 @@ public class StorageSignCore extends JavaPlugin implements Listener {
       storageSignRecipe.setIngredient('C', Material.CHEST);
       storageSignRecipe.setIngredient('S', sign[i]);
 
-			if (config.getBoolean("hardrecipe")) {
+			if (ConfigLoader.getHardRecipe()) {
 				storageSignRecipe.setIngredient('H', Material.ENDER_CHEST);
 			} else {
 				storageSignRecipe.setIngredient('H', Material.CHEST);
@@ -115,12 +112,12 @@ public class StorageSignCore extends JavaPlugin implements Listener {
     logger.trace("setEvent");
     getServer().getPluginManager().registerEvents(this, this);
 
-    logger.trace("no-bud:" + config.getBoolean("no-bud"));
-		if (config.getBoolean("no-bud")) {
+    logger.trace("no-bud:" + ConfigLoader.getNoBud());
+		if (ConfigLoader.getNoBud()) {
       logger.trace("no-bud is True.");
 			new SignPhysicsEvent(this, logger);
 		}
-    _fallingBlockSS = config.getBoolean("falling-block-itemSS");
+    _fallingBlockSS = ConfigLoader.getFallingBlockItemSs();
 
     logger.debug("★onEnable:End");
   }
@@ -215,7 +212,7 @@ public class StorageSignCore extends JavaPlugin implements Listener {
           "storagesign.use"));
       if (!player.hasPermission("storagesign.use")) {
         logger.debug("★This User hasn't permission.storagesign.use");
-        player.sendMessage(ChatColor.BLACK + config.getString("no-permisson"));
+        player.sendMessage(ChatColor.BLACK + ConfigLoader.getNoPermission());
         event.setCancelled(true);
         return;
       }
@@ -322,19 +319,17 @@ public class StorageSignCore extends JavaPlugin implements Listener {
         StorageSign itemSign = new StorageSign(itemMainHand, logger);
         logger.trace("itemSign:" + itemSign);
         logger.trace("storageSign.getContents().isSimilar(itemSign.getContents()) && config.getBoolean(\n"
-            + "            \"manual-import\"):" + (storageSign.getContents().isSimilar(itemSign.getContents()) && config.getBoolean(
-            "manual-import")));
+            + "            \"manual-import\"):" + (storageSign.getContents().isSimilar(itemSign.getContents()) && ConfigLoader.getManualImport()));
         logger.trace("itemSign.isEmpty() && storageSign.getAmount() > itemMainHand.getAmount()\n"
             + "            && config.getBoolean(\"manual-export\")" + (itemSign.isEmpty() && storageSign.getAmount() > itemMainHand.getAmount()
-            && config.getBoolean("manual-export")));
-        if (storageSign.getContents().isSimilar(itemSign.getContents()) && config.getBoolean(
-            "manual-import")) {
+            && ConfigLoader.getManualExport()));
+        if (storageSign.getContents().isSimilar(itemSign.getContents()) && ConfigLoader.getManualImport()) {
           logger.debug("Sign store Items.");
           storageSign.addAmount(itemSign.getAmount() * itemSign.getStackSize());
           itemSign.setAmount(0);
           player.getInventory().setItemInMainHand(itemSign.getStorageSign());
         } else if (itemSign.isEmpty() && storageSign.getMaterial() == itemSign.getSmat()
-            && storageSign.getDamage() == 1 && config.getBoolean("manual-import")) {
+            && storageSign.getDamage() == 1 && ConfigLoader.getManualImport()) {
           //空看板収納
           logger.debug("Empty Sign store.");
           logger.trace("player.isSneaking()" + player.isSneaking());
@@ -357,7 +352,7 @@ public class StorageSignCore extends JavaPlugin implements Listener {
 						}
 					}
         } else if (itemSign.isEmpty() && storageSign.getAmount() > itemMainHand.getAmount()
-            && config.getBoolean("manual-export")) {
+            && ConfigLoader.getManualExport()) {
           //中身分割機能
           logger.debug("Export Item to Empty Sign.");
           itemSign.setMaterial(storageSign.getMaterial());
@@ -365,7 +360,7 @@ public class StorageSignCore extends JavaPlugin implements Listener {
           itemSign.setEnchant(storageSign.getEnchant());
           itemSign.setPotion(storageSign.getPotion());
 
-          int limit = config.getInt("divide-limit");
+          int limit = ConfigLoader.getDivideLimit();
 
           logger.trace("limit > 0 && storageSign.getAmount() > limit * (itemSign.getStackSize() + 1)" + (limit > 0 && storageSign.getAmount() > limit * (itemSign.getStackSize() + 1)));
 					if (limit > 0 && storageSign.getAmount() > limit * (itemSign.getStackSize() + 1)) {
@@ -394,13 +389,13 @@ public class StorageSignCore extends JavaPlugin implements Listener {
       boolean isMainSimiller = storageSign.isSimilar(itemMainHand);
       logger.debug("check manual Import.");
       logger.trace("storageSign.isSimilar(itemMainHand): " + isMainSimiller);
-      logger.trace("config.getBoolean(\"manual-import\"): " + config.getBoolean("manual-import"));
-      logger.trace("config.getBoolean(\"manual-export\"): " + config.getBoolean("manual-export"));
+      logger.trace("config.getBoolean(\"manual-import\"): " + ConfigLoader.getManualImport());
+      logger.trace("config.getBoolean(\"manual-export\"): " + ConfigLoader.getManualExport());
       if (isMainSimiller) {
         logger.debug("StorageSign Import.");
 
-        logger.trace("!config.getBoolean(\"manual-import\"): " + !config.getBoolean("manual-import"));
-				if (!config.getBoolean("manual-import")) {
+        logger.trace("!config.getBoolean(\"manual-import\"): " + !ConfigLoader.getManualImport());
+				if (!ConfigLoader.getManualImport()) {
           logger.debug("★option:manual-import is False!");
 					return;
 				}
@@ -437,7 +432,7 @@ public class StorageSignCore extends JavaPlugin implements Listener {
 				}
 
         player.updateInventory();
-      } else if (config.getBoolean("manual-export"))/*放出*/ {
+      } else if (ConfigLoader.getManualExport())/*放出*/ {
         logger.debug("Export StorageSign Item.");
 
         boolean isDye = false;
@@ -530,7 +525,7 @@ public class StorageSignCore extends JavaPlugin implements Listener {
         sign.update();
       } else {
         logger.debug("This user hasn't Permission.storagesign.create");
-        event.getPlayer().sendMessage(ChatColor.RED + config.getString("no-permisson"));
+        event.getPlayer().sendMessage(ChatColor.RED + ConfigLoader.getNoPermission());
         event.setCancelled(true);
       }
     }
@@ -550,7 +545,7 @@ public class StorageSignCore extends JavaPlugin implements Listener {
         .hasPermission("storagesign.break"));
     if (!event.getPlayer().hasPermission("storagesign.break")) {
       logger.debug("★This user hasn't Permission. storagesign.break.");
-      event.getPlayer().sendMessage(ChatColor.RED + config.getString("no-permisson"));
+      event.getPlayer().sendMessage(ChatColor.RED + ConfigLoader.getNoPermission());
       event.setCancelled(true);
       return;
     }
@@ -575,7 +570,7 @@ public class StorageSignCore extends JavaPlugin implements Listener {
     logger.trace("!player.hasPermission(\"storagesign.place\"): " + !player.hasPermission("storagesign.place"));
     if (!player.hasPermission("storagesign.place")) {
       logger.debug("★This user hasn't Permission. storagesign.place.");
-      player.sendMessage(ChatColor.RED + config.getString("no-permisson"));
+      player.sendMessage(ChatColor.RED + ConfigLoader.getNoPermission());
       event.setCancelled(true);
       return;
     }
@@ -639,8 +634,8 @@ public class StorageSignCore extends JavaPlugin implements Listener {
     Sign sign = null;
     StorageSign storageSign = null;
     ItemStack item = event.getItem();
-    logger.trace("config.getBoolean(\"auto-import\"): " + config.getBoolean("auto-import"));
-    if (config.getBoolean("auto-import")) {
+    logger.trace("config.getBoolean(\"auto-import\"): " + ConfigLoader.getAutoImport());
+    if (ConfigLoader.getAutoImport()) {
       logger.debug("auto-import Start");
       logger.trace("event.getDestination().getLocation(): " + event.getDestination().getLocation());
       logger.trace("event.getDestination().getHolder(): " + event.getDestination().getHolder());
@@ -727,8 +722,8 @@ public class StorageSignCore extends JavaPlugin implements Listener {
     }
 
     //搬出用にリセット
-    logger.debug("config.getBoolean(\"auto-export\"): " + config.getBoolean("auto-export"));
-    if (config.getBoolean("auto-export")) {
+    logger.debug("config.getBoolean(\"auto-export\"): " + ConfigLoader.getAutoExport());
+    if (ConfigLoader.getAutoExport()) {
       blockInventory[0] = null;
       blockInventory[1] = null;
       flag = false;
@@ -1013,7 +1008,7 @@ public class StorageSignCore extends JavaPlugin implements Listener {
         .hasPermission("storagesign.craft")) {
       logger.debug("This user hasn't Permission. storagesign.craft.");
       ((CommandSender) event.getWhoClicked()).sendMessage(
-          ChatColor.RED + config.getString("no-permisson"));
+          ChatColor.RED + ConfigLoader.getNoPermission());
       event.setCancelled(true);
     }
     logger.debug("★onPlayerCraft:End");
@@ -1023,8 +1018,8 @@ public class StorageSignCore extends JavaPlugin implements Listener {
   public void onInventoryPickup(InventoryPickupItemEvent event) {//ホッパーに投げ込まれたとき
     logger.debug("★onInventoryPickup:Start");
     logger.trace("event.isCancelled(): " + event.isCancelled());
-    logger.trace("!config.getBoolean(\"auto-import\"): " + !config.getBoolean("auto-import"));
-		if (event.isCancelled() || !config.getBoolean("auto-import")) {
+    logger.trace("!config.getBoolean(\"auto-import\"): " + !ConfigLoader.getAutoImport());
+		if (event.isCancelled() || !ConfigLoader.getAutoImport()) {
       logger.debug("★eventCancelled or not set permission.auto-import.");
 			return;
 		}
@@ -1095,8 +1090,8 @@ public class StorageSignCore extends JavaPlugin implements Listener {
 		}
 
     logger.trace("event.getEntityType(): " + event.getEntityType());
-    logger.trace("config.getBoolean(\"autocollect\"): " + config.getBoolean("autocollect"));
-    if (event.getEntityType() == EntityType.PLAYER && config.getBoolean("autocollect")) {
+    logger.trace("config.getBoolean(\"autocollect\"): " + ConfigLoader.getAutoCollect());
+    if (event.getEntityType() == EntityType.PLAYER && ConfigLoader.getAutoCollect()) {
       Player player = (Player) event.getEntity();
       PlayerInventory playerInv = player.getInventory();
       ItemStack item = event.getItem().getItemStack();

@@ -11,5 +11,6 @@ autocollect: true
 hardrecipe: false
 
 divide-limit: 345600
+max-stack-size: 32
 no-bud: false
 falling-block-itemSS: false
