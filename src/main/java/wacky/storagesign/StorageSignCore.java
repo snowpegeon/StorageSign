@@ -198,7 +198,14 @@ public class StorageSignCore extends JavaPlugin implements Listener {
       }
       if (event.getHand() == EquipmentSlot.OFF_HAND) {
         logger.debug("★This hand is OFF_HAND.");
-        //一応
+        //オフハンドでスニーク動作でSSを触り、かつ持ってるアイテムがSSのときは、看板が張り付かないようにイベントをキャンセルする
+        boolean offItemIsSS = StorageSign.isStorageSign(event.getItem(), logger);
+        logger.trace("player.isSneaking(): " + player.isSneaking());
+        logger.trace("offItemIsSS: " + offItemIsSS);
+        if (player.isSneaking() && offItemIsSS) {
+          event.setUseItemInHand(Result.DENY);
+          event.setUseInteractedBlock(Result.DENY);
+        }
         return;
       }
       event.setUseItemInHand(Result.DENY);

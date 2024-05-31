@@ -1,7 +1,10 @@
 package wacky.storagesign;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -27,6 +30,9 @@ public class StorageSign {
 
   private static final org.apache.logging.log4j.Logger log = LogManager.getLogger(
       StorageSign.class);
+
+  private static final Set<Material> block_entity_data_Materials = Collections.unmodifiableSet(
+      EnumSet.of(BEE_NEST, BEEHIVE));
   /**
    *
    */
@@ -765,6 +771,10 @@ public class StorageSign {
           return true;
         }
       }
+    } else if (block_entity_data_Materials.contains(this.mat)) {
+      // block_entity_data_Materialsに入ってるものは、isSimilarで比較できないので、Materialが一緒かで判定
+      _logger.debug(" This mat is block_entity_data_Materials.");
+      return this.mat.equals(item.getType());
     }
 
     // SSなのかだけ、別ロジックで判定
