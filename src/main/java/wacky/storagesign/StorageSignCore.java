@@ -678,9 +678,9 @@ public class StorageSignCore extends JavaPlugin implements Listener {
           BlockFace[] face = {BlockFace.UP, BlockFace.SOUTH, BlockFace.NORTH, BlockFace.EAST,
               BlockFace.WEST};
           Block block = blockInventory[j].getBlock().getRelative(face[i]);
-          boolean relIsSignPost = StorageSign.isSignPost(block, logger);
+          boolean relIsSignPost = StorageSign.sign_materials.contains(block.getType());
           boolean relIsStorageSign = StorageSign.isStorageSign(block, logger);
-          boolean relIsWallSign = StorageSign.isWallSign(block, logger);
+          boolean relIsWallSign = StorageSign.wall_sign_materials.contains(block.getType());
           logger.trace("blockInventory[j].getBlock(): "+ blockInventory[j].getBlock());
           logger.trace("i: " + i);
           logger.trace("face[i]: " + face[i]);
@@ -765,9 +765,9 @@ public class StorageSignCore extends JavaPlugin implements Listener {
           BlockFace[] face = {BlockFace.UP, BlockFace.SOUTH, BlockFace.NORTH, BlockFace.EAST,
               BlockFace.WEST};
           Block block = blockInventory[j].getBlock().getRelative(face[i]);
-          boolean relIsSignPost = StorageSign.isSignPost(block, logger);
+          boolean relIsSignPost = StorageSign.sign_materials.contains(block.getType());
           boolean relIsStorageSign = StorageSign.isStorageSign(block, logger);
-          boolean relIsWallSign = StorageSign.isWallSign(block, logger);
+          boolean relIsWallSign = StorageSign.wall_sign_materials.contains(block.getType());
           logger.trace("blockInventory[j].getBlock(): "+ blockInventory[j].getBlock());
           logger.trace("i: " + i);
           logger.trace("face[i]: " + face[i]);
@@ -1041,9 +1041,9 @@ public class StorageSignCore extends JavaPlugin implements Listener {
         BlockFace[] face = {BlockFace.UP, BlockFace.SOUTH, BlockFace.NORTH, BlockFace.EAST,
             BlockFace.WEST};
         Block block = ((BlockState) holder).getBlock().getRelative(face[i]);
-        boolean relIsSignPost = StorageSign.isSignPost(block, logger);
+        boolean relIsSignPost = StorageSign.sign_materials.contains(block.getType());
         boolean relIsStorageSign = StorageSign.isStorageSign(block, logger);
-        boolean relIsWallSign = StorageSign.isWallSign(block, logger);
+        boolean relIsWallSign = StorageSign.wall_sign_materials.contains(block.getType());
         logger.trace(" i: " + i);
         logger.trace(" relIsSignPost: " + relIsSignPost);
         logger.trace(" relIsStorageSign: " + relIsStorageSign);
@@ -1212,9 +1212,9 @@ public class StorageSignCore extends JavaPlugin implements Listener {
           BlockFace.WEST};
       Block relBlock = block.getRelative(face[i]);
 
-      boolean relIsSignPost = StorageSign.isSignPost(relBlock, logger);
+      boolean relIsSignPost = StorageSign.sign_materials.contains(relBlock.getType());
       boolean relIsStorageSign = StorageSign.isStorageSign(relBlock, logger);
-      boolean relIsWallSign = StorageSign.isWallSign(relBlock, logger);
+      boolean relIsWallSign = StorageSign.wall_sign_materials.contains(relBlock.getType());
       logger.trace("  relBlock: " + relBlock);
       logger.trace("  relIsSignPost: " + relIsSignPost);
       logger.trace("  relIsStorageSign: " + relIsStorageSign);

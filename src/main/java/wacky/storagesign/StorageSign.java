@@ -48,13 +48,13 @@ public class StorageSign {
    * 看板と扱われるアイテム一覧.
    * 看板種類が追加されたら追加する.
    */
-  private static final Set<Material> sign_materials = Collections.unmodifiableSet(EnumSet.of(OAK_SIGN, SPRUCE_SIGN, BIRCH_SIGN, JUNGLE_SIGN, ACACIA_SIGN, DARK_OAK_SIGN, CRIMSON_SIGN, WARPED_SIGN, MANGROVE_SIGN, CHERRY_SIGN, BAMBOO_SIGN));
+  public static final Set<Material> sign_materials = Collections.unmodifiableSet(EnumSet.of(OAK_SIGN, SPRUCE_SIGN, BIRCH_SIGN, JUNGLE_SIGN, ACACIA_SIGN, DARK_OAK_SIGN, CRIMSON_SIGN, WARPED_SIGN, MANGROVE_SIGN, CHERRY_SIGN, BAMBOO_SIGN));
 
   /**
    * 看板と扱われるアイテム一覧.
    * 看板種類が追加されたら追加する.
    */
-  private static final Set<Material> wall_sign_materials = Collections.unmodifiableSet(EnumSet.of(OAK_WALL_SIGN, SPRUCE_WALL_SIGN, BIRCH_WALL_SIGN, JUNGLE_WALL_SIGN, ACACIA_WALL_SIGN, DARK_OAK_WALL_SIGN, CRIMSON_WALL_SIGN, WARPED_WALL_SIGN, MANGROVE_WALL_SIGN, CHERRY_WALL_SIGN, BAMBOO_WALL_SIGN));
+  public static final Set<Material> wall_sign_materials = Collections.unmodifiableSet(EnumSet.of(OAK_WALL_SIGN, SPRUCE_WALL_SIGN, BIRCH_WALL_SIGN, JUNGLE_WALL_SIGN, ACACIA_WALL_SIGN, DARK_OAK_WALL_SIGN, CRIMSON_WALL_SIGN, WARPED_WALL_SIGN, MANGROVE_WALL_SIGN, CHERRY_WALL_SIGN, BAMBOO_WALL_SIGN));
 
   /**
    * 壁掛け看板と通常看板の変換一覧.
@@ -282,23 +282,51 @@ public class StorageSign {
   }
 
   /**
+   * 引数に渡された情報を基にStorageSignを作成して、ItemStackとして取得します.
+   *
+   * @param type Material
+   * @param amount Integer
+   * @param list List<String>
+   * @return ItemStack StorageSign
+   */
+  public static ItemStack createStorageSign(Material type, Integer amount, List<String> list){
+    ItemStack sign;
+    if(Objects.isNull(amount)) {
+      sign = new ItemStack(type);
+    } else {
+      sign = new ItemStack(type, amount);
+    }
+
+    ItemMeta meta = sign.getItemMeta();
+
+    meta.setDisplayName(storage_sign_name);
+    meta.setLore(list);
+    meta.setMaxStackSize(ConfigLoader.getMaxStackSize());
+    sign.setItemMeta(meta);
+
+    return sign;
+  }
+  /**
    * Materialの内容から、空のStorageSignを作成して、ItemStackとして取得します.
    *
    * @param smat Material
    * @return ItemStack 空のStorageSign
    */
   public static ItemStack emptySign(Material smat) {
-    ItemStack emptySign = new ItemStack(smat);
-    ItemMeta meta = emptySign.getItemMeta();
+    return emptySign(smat, null);
+  }
+
+  /**
+   * Materialの内容から、空のStorageSignを作成して、ItemStackとして取得します.
+   *
+   * @param smat Material
+   * @param amount Integer
+   * @return ItemStack 空のStorageSign
+   */
+  public static ItemStack emptySign(Material smat, Integer amount) {
     List<String> list = new ArrayList<>();
-
-    meta.setDisplayName(storage_sign_name);
     list.add("Empty");
-    meta.setLore(list);
-    meta.setMaxStackSize(ConfigLoader.getMaxStackSize());
-    emptySign.setItemMeta(meta);
-
-    return emptySign;
+    return createStorageSign(smat, amount, list);
   }
 
   /**
@@ -436,15 +464,12 @@ public class StorageSign {
    */
   public ItemStack getStorageSign() {
     _logger.debug("getStorageSign:start");
-    ItemStack item = new ItemStack(this.smat, this.stack);
-    ItemMeta meta = item.getItemMeta();
-    meta.setDisplayName(storage_sign_name);
     List<String> list = new ArrayList<>();
 
     // IDとMaterial名が混ざってたり、エンチャ本対応したり
     if (this.isEmpty) {
       _logger.debug("Empty");
-      list.add("Empty");
+      return emptySign(this.smat, this.stack);
 
     } else if (ENCHANTED_BOOK.equals(this.mat)) {
       _logger.debug("ENCHANTED_BOOK");
@@ -460,13 +485,8 @@ public class StorageSign {
       list.add(getShortName() + " " + this.amount);
 
     }
-
-    meta.setLore(list);
-    meta.setMaxStackSize(ConfigLoader.getMaxStackSize());
-    item.setItemMeta(meta);
-
     _logger.debug("getStorageSign:end");
-    return item;
+    return createStorageSign(this.smat, this.stack, list);
   }
 
   /**
@@ -682,7 +702,6 @@ public class StorageSign {
     ItemStack contents = getContents();
     boolean isStorageSign = isStorageSign(item, _logger);
     boolean contentIsStorageSign = isStorageSign(contents, _logger);
-    boolean isSignPost = isSignPost(item.getType(), _logger);
     _logger.trace("isStorageSign: " + isStorageSign);
     _logger.trace("contents.getType() == item.getType(): " + (contents.getType() == item.getType()));
     if(isStorageSign && contentIsStorageSign){
@@ -829,7 +848,7 @@ public class StorageSign {
       return false;
     }
 
-    boolean isSignPost =  isSignPost(item.getType(), logger);
+    boolean isSignPost =  sign_materials.contains(item.getType());
     logger.trace(" isSignPost:" +isSignPost);
     if (isSignPost) {
 
@@ -858,8 +877,8 @@ public class StorageSign {
   public static boolean isStorageSign(Block block, Logger logger) {
     logger.debug(" isStorageSign(Block):Start");
 
-    boolean isSignPost = isSignPost(block.getType(), logger);
-    boolean isWallSign =  isWallSign(block.getType(), logger);
+    boolean isSignPost = sign_materials.contains(block.getType());
+    boolean isWallSign =  wall_sign_materials.contains(block.getType());
     logger.trace(" block.getType(): " + block.getType());
     logger.trace(" isSignPost(block.getType()): " + isSignPost);
     logger.trace(" isWallSign(block.getType()) :" + isWallSign);
@@ -877,43 +896,5 @@ public class StorageSign {
 
     logger.debug(" This Block isn't StorageSign.");
     return false;
-  }
-
-  /**
-   * 渡されたBlockが看板か判断.
-   */
-  public static boolean isSignPost(Block block, Logger logger) {
-    logger.debug("  isSignPost(Block)");
-    Material mat = block.getType();
-    return isSignPost(mat, logger);
-  }
-
-  /**
-   * 渡されたBlockが壁掛け看板か判断.
-   */
-  public static boolean isWallSign(Block block, Logger logger) {
-    Material mat = block.getType();
-    return isWallSign(mat, logger);
-  }
-
-  /**
-   * 渡されたMaterialが看板か判断.
-   */
-  //看板も8種類になったし、mat版おいとく
-  public static boolean isSignPost(Material mat, Logger logger) {
-    logger.debug("  isSignPost(Material): Start");
-    logger.trace("  mat: " + mat);
-    logger.trace("  sign_materials.contains(mat): " + sign_materials.contains(mat));
-    return sign_materials.contains(mat);
-  }
-
-  /**
-   * 渡されたMaterialが壁掛け看板か判断.
-   */
-  public static boolean isWallSign(Material mat, Logger logger) {
-    logger.debug("  isWallSign(Material): Start");
-    logger.trace("  mat: " + mat);
-    logger.trace("  wall_sign_materials.contains(mat): " + wall_sign_materials.contains(mat));
-    return wall_sign_materials.contains(mat);
   }
 }
