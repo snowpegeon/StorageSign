@@ -246,6 +246,7 @@ public class StorageSign {
     meta.setDisplayName("StorageSign");
     list.add("Empty");
     meta.setLore(list);
+    meta.setMaxStackSize(ConfigLoader.getMaxStackSize());
     emptySign.setItemMeta(meta);
 
     return emptySign;
@@ -511,7 +512,7 @@ public class StorageSign {
    * @return ItemStack 空のStorageSign
    */
   public ItemStack getStorageSign() {
-    _logger.debug("getStorageSign:stert");
+    _logger.debug("getStorageSign:start");
     ItemStack item = new ItemStack(this.smat, this.stack);
     ItemMeta meta = item.getItemMeta();
     meta.setDisplayName("StorageSign");
@@ -539,6 +540,7 @@ public class StorageSign {
     }
 
     meta.setLore(list);
+    meta.setMaxStackSize(ConfigLoader.getMaxStackSize());
     item.setItemMeta(meta);
 
     _logger.debug("getStorageSign:end");

@@ -107,6 +107,15 @@ public class ConfigLoader {
   }
 
   /**
+   * sneak-divide-limitの値を取得する.
+   *
+   * @return boolean
+   */
+  public static int getSneakDivideLimit() {
+    return fileConfig.getInt("sneak-divide-limit");
+  }
+
+  /**
    * max-stack-sizeの値を取得する.
    *
    * @return boolean

@@ -360,7 +360,12 @@ public class StorageSignCore extends JavaPlugin implements Listener {
           itemSign.setEnchant(storageSign.getEnchant());
           itemSign.setPotion(storageSign.getPotion());
 
-          int limit = ConfigLoader.getDivideLimit();
+          int limit;
+          if (player.isSneaking()){
+            limit = ConfigLoader.getSneakDivideLimit();
+          } else {
+            limit = ConfigLoader.getDivideLimit();
+          }
 
           logger.trace("limit > 0 && storageSign.getAmount() > limit * (itemSign.getStackSize() + 1)" + (limit > 0 && storageSign.getAmount() > limit * (itemSign.getStackSize() + 1)));
 					if (limit > 0 && storageSign.getAmount() > limit * (itemSign.getStackSize() + 1)) {
