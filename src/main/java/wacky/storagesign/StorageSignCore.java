@@ -1,8 +1,8 @@
 package wacky.storagesign;
 
 import com.github.teruteru128.logger.Logger;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -21,7 +21,6 @@ import org.bukkit.block.Sign;
 import org.bukkit.block.data.type.WallSign;
 import org.bukkit.block.sign.Side;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
@@ -57,6 +56,7 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionType;
+import wacky.storagesign.signdefinition.SignDefinition;
 
 public class StorageSignCore extends JavaPlugin implements Listener {
 
@@ -86,19 +86,18 @@ public class StorageSignCore extends JavaPlugin implements Listener {
 //		logger.trace("traceLog");
 
     //鯖別レシピが実装されたら
-    Material[] sign = {Material.OAK_SIGN, Material.BIRCH_SIGN, Material.SPRUCE_SIGN,
-        Material.JUNGLE_SIGN, Material.ACACIA_SIGN, Material.DARK_OAK_SIGN, Material.CRIMSON_SIGN,
-        Material.WARPED_SIGN, Material.MANGROVE_SIGN, Material.CHERRY_SIGN, Material.BAMBOO_SIGN};
     logger.trace("hardrecipe:" + ConfigLoader.getHardRecipe());
-    for (int i = 0; i < 11; i++) {
-      logger.trace("signRecipi name:" + sign[i]);
+    Iterator<Material> it = SignDefinition.sign_materials.iterator();
+    while(it.hasNext()){
+      Material mat = it.next();
+      logger.trace("signRecipi name:" + mat);
 
-      ShapedRecipe storageSignRecipe = new ShapedRecipe(new NamespacedKey(this, "ssr" + i),
-          StorageSign.emptySign(sign[i]));
+      ShapedRecipe storageSignRecipe = new ShapedRecipe(new NamespacedKey(this, "ssr" + mat.toString()),
+          StorageSign.emptySign(mat));
       //ShapedRecipe storageSignRecipe = new ShapedRecipe(StorageSign.emptySign());
       storageSignRecipe.shape("CCC", "CSC", "CHC");
       storageSignRecipe.setIngredient('C', Material.CHEST);
-      storageSignRecipe.setIngredient('S', sign[i]);
+      storageSignRecipe.setIngredient('S', mat);
 
 			if (ConfigLoader.getHardRecipe()) {
 				storageSignRecipe.setIngredient('H', Material.ENDER_CHEST);
@@ -106,7 +105,7 @@ public class StorageSignCore extends JavaPlugin implements Listener {
 				storageSignRecipe.setIngredient('H', Material.CHEST);
 			}
       getServer().addRecipe(storageSignRecipe);
-      logger.trace(sign[i] + "StorageSign Recipe added.");
+      logger.trace(mat + "StorageSign Recipe added.");
     }
 
     logger.trace("setEvent");
@@ -678,9 +677,9 @@ public class StorageSignCore extends JavaPlugin implements Listener {
           BlockFace[] face = {BlockFace.UP, BlockFace.SOUTH, BlockFace.NORTH, BlockFace.EAST,
               BlockFace.WEST};
           Block block = blockInventory[j].getBlock().getRelative(face[i]);
-          boolean relIsSignPost = StorageSign.sign_materials.contains(block.getType());
+          boolean relIsSignPost = SignDefinition.sign_materials.contains(block.getType());
           boolean relIsStorageSign = StorageSign.isStorageSign(block, logger);
-          boolean relIsWallSign = StorageSign.wall_sign_materials.contains(block.getType());
+          boolean relIsWallSign = SignDefinition.wall_sign_materials.contains(block.getType());
           logger.trace("blockInventory[j].getBlock(): "+ blockInventory[j].getBlock());
           logger.trace("i: " + i);
           logger.trace("face[i]: " + face[i]);
@@ -765,9 +764,9 @@ public class StorageSignCore extends JavaPlugin implements Listener {
           BlockFace[] face = {BlockFace.UP, BlockFace.SOUTH, BlockFace.NORTH, BlockFace.EAST,
               BlockFace.WEST};
           Block block = blockInventory[j].getBlock().getRelative(face[i]);
-          boolean relIsSignPost = StorageSign.sign_materials.contains(block.getType());
+          boolean relIsSignPost = SignDefinition.sign_materials.contains(block.getType());
           boolean relIsStorageSign = StorageSign.isStorageSign(block, logger);
-          boolean relIsWallSign = StorageSign.wall_sign_materials.contains(block.getType());
+          boolean relIsWallSign = SignDefinition.wall_sign_materials.contains(block.getType());
           logger.trace("blockInventory[j].getBlock(): "+ blockInventory[j].getBlock());
           logger.trace("i: " + i);
           logger.trace("face[i]: " + face[i]);
@@ -1041,9 +1040,9 @@ public class StorageSignCore extends JavaPlugin implements Listener {
         BlockFace[] face = {BlockFace.UP, BlockFace.SOUTH, BlockFace.NORTH, BlockFace.EAST,
             BlockFace.WEST};
         Block block = ((BlockState) holder).getBlock().getRelative(face[i]);
-        boolean relIsSignPost = StorageSign.sign_materials.contains(block.getType());
+        boolean relIsSignPost = SignDefinition.sign_materials.contains(block.getType());
         boolean relIsStorageSign = StorageSign.isStorageSign(block, logger);
-        boolean relIsWallSign = StorageSign.wall_sign_materials.contains(block.getType());
+        boolean relIsWallSign = SignDefinition.wall_sign_materials.contains(block.getType());
         logger.trace(" i: " + i);
         logger.trace(" relIsSignPost: " + relIsSignPost);
         logger.trace(" relIsStorageSign: " + relIsStorageSign);
@@ -1212,9 +1211,9 @@ public class StorageSignCore extends JavaPlugin implements Listener {
           BlockFace.WEST};
       Block relBlock = block.getRelative(face[i]);
 
-      boolean relIsSignPost = StorageSign.sign_materials.contains(relBlock.getType());
+      boolean relIsSignPost = SignDefinition.sign_materials.contains(relBlock.getType());
       boolean relIsStorageSign = StorageSign.isStorageSign(relBlock, logger);
-      boolean relIsWallSign = StorageSign.wall_sign_materials.contains(relBlock.getType());
+      boolean relIsWallSign = SignDefinition.wall_sign_materials.contains(relBlock.getType());
       logger.trace("  relBlock: " + relBlock);
       logger.trace("  relIsSignPost: " + relIsSignPost);
       logger.trace("  relIsStorageSign: " + relIsStorageSign);
