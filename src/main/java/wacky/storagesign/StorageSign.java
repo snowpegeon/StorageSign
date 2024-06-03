@@ -99,7 +99,7 @@ public class StorageSign {
   /**
    * ログ出力用ロガー.
    */
-  private Logger _logger;
+  private final Logger _logger;
 
   /**
    * ItemStackに設定されている看板の情報からStorageSignを生成する.
@@ -108,7 +108,8 @@ public class StorageSign {
     this._logger = logger;
     logger.debug("StorageSign:start");
 
-    String[] str = item.getItemMeta().getLore().get(0).split(" ");
+    List<String> lore = Objects.requireNonNull(item.getItemMeta()).getLore();
+    String[] str = Objects.requireNonNull(lore).getFirst().split(" ");
 
     if (str[0].matches("Empty")) {
       logger.debug("StorageSign is Empty");
@@ -219,7 +220,7 @@ public class StorageSign {
    *
    * @param type Material
    * @param amount Integer
-   * @param list List<String>
+   * @param list List
    * @return ItemStack StorageSign
    */
   public static ItemStack createStorageSign(Material type, Integer amount, List<String> list){
@@ -231,8 +232,7 @@ public class StorageSign {
     }
 
     ItemMeta meta = sign.getItemMeta();
-
-    meta.setDisplayName(storage_sign_name);
+    Objects.requireNonNull(meta).setDisplayName(storage_sign_name);
     meta.setLore(list);
     meta.setMaxStackSize(ConfigLoader.getMaxStackSize());
     sign.setItemMeta(meta);
@@ -242,11 +242,11 @@ public class StorageSign {
   /**
    * Materialの内容から、空のStorageSignを作成して、ItemStackとして取得します.
    *
-   * @param smat Material
+   * @param signMat Material
    * @return ItemStack 空のStorageSign
    */
-  public static ItemStack emptySign(Material smat) {
-    return emptySign(smat, null);
+  public static ItemStack emptySign(Material signMat) {
+    return emptySign(signMat, null);
   }
 
   /**
@@ -265,7 +265,7 @@ public class StorageSign {
   /**
    * 指定された文字列でMaterialに変換します.
    *
-   * @param str
+   * @param str String
    * @return Material
    */
   protected Material getMaterial(String str) {
@@ -437,7 +437,7 @@ public class StorageSign {
     ItemMeta meta = emptyHorseEgg.getItemMeta();
     List<String> list = new ArrayList<>();
 
-    meta.setDisplayName("HorseEgg");
+    Objects.requireNonNull(meta).setDisplayName("HorseEgg");
     list.add("Empty");
     meta.setLore(list);
     emptyHorseEgg.setItemMeta(meta);
@@ -473,8 +473,8 @@ public class StorageSign {
     sign[0] = storage_sign_name;
     sign[1] = getShortName();
     sign[2] = String.valueOf(this.amount);
-    sign[3] = String.valueOf(this.amount / 3456) + "LC " + String.valueOf(this.amount % 3456 / 64)
-        + "s " + String.valueOf(this.amount % 64);
+    sign[3] = (this.amount / 3456) + "LC " + (this.amount % 3456 / 64)
+        + "s " + (this.amount % 64);
 
     _logger.debug("getSigntext:end");
     return sign;
@@ -529,7 +529,7 @@ public class StorageSign {
       ItemStack item = new ItemStack(this.mat, 1);
 
       EnchantmentStorageMeta enchantMeta = (EnchantmentStorageMeta) item.getItemMeta();
-      enchantMeta.addStoredEnchant(this.ench, this.damage, true);
+      Objects.requireNonNull(enchantMeta).addStoredEnchant(this.ench, this.damage, true);
       item.setItemMeta(enchantMeta);
 
       return item;
@@ -539,9 +539,7 @@ public class StorageSign {
 
       ItemStack item = new ItemStack(this.mat, 1);
       PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
-      // potionMeta.setBasePotionData(new PotionData(pot, damage == 1, damage == 2));
-
-      potionMeta.setBasePotionType(this.pot);
+      Objects.requireNonNull(potionMeta).setBasePotionType(this.pot);
       item.setItemMeta(potionMeta);
 
       return item;
@@ -550,8 +548,7 @@ public class StorageSign {
       _logger.debug("FIREWORK_ROCKET");
       ItemStack item = new ItemStack(this.mat, 1);
       FireworkMeta fireworkMeta = (FireworkMeta) item.getItemMeta();
-
-      fireworkMeta.setPower(this.damage);
+      Objects.requireNonNull(fireworkMeta).setPower(this.damage);
       item.setItemMeta(fireworkMeta);
 
       return item;
@@ -603,16 +600,18 @@ public class StorageSign {
       _logger.debug("ENCHANTED_BOOK");
 
       EnchantmentStorageMeta enchantMeta = (EnchantmentStorageMeta) item.getItemMeta();
-
+      // ないと思うけど、metaがnullならfalse.
+      if(Objects.isNull(enchantMeta)) {
+        return false;
+      }
       if (enchantMeta.getStoredEnchants().size() == 1) {
         _logger.debug("enchantMeta.getStoredEnchants().size() = 1");
         Enchantment itemEnch =
             enchantMeta.getStoredEnchants().keySet().toArray(new Enchantment[0])[0];
 
-        if (itemEnch == this.ench && enchantMeta.getStoredEnchantLevel(itemEnch) == this.damage) {
+        if (itemEnch.equals(this.ench) && enchantMeta.getStoredEnchantLevel(itemEnch) == this.damage) {
           _logger.debug("Item is Similar");
           return true;
-
         }
       }
       _logger.debug(" Item isn't Similar");
@@ -624,6 +623,10 @@ public class StorageSign {
       _logger.trace(" this.mat.equals(item.getType()): " + this.mat.equals(item.getType()));
       if (this.mat.equals(item.getType())) {
         PotionMeta pom = (PotionMeta) item.getItemMeta();
+        // ないと思うけど、pomがnullならfalse
+        if(Objects.isNull(pom) || Objects.isNull(pom.getBasePotionType())) {
+          return false;
+        }
         _logger.trace(" pom.getBasePotionType().equals(this.pot): " + pom.getBasePotionType().equals(this.pot));
         if (pom.getBasePotionType().equals(this.pot)) {
           return true;
@@ -641,12 +644,12 @@ public class StorageSign {
     boolean contentIsStorageSign = isStorageSign(contents, _logger);
     _logger.trace("isStorageSign: " + isStorageSign);
     _logger.trace("contents.getType() == item.getType(): " + (contents.getType() == item.getType()));
-    if(isStorageSign && contentIsStorageSign){
-      if(contents.getType() == item.getType()){
-        StorageSign cSign = new StorageSign(contents, _logger);
-        StorageSign iSign = new StorageSign(item, _logger);
-        _logger.trace("cSign.isEmpty() == iSign.isEmpty(): " + (cSign.isEmpty() == iSign.isEmpty()));
-        return cSign.isEmpty() == iSign.isEmpty();
+    if (isStorageSign && contentIsStorageSign) {
+      if (contents.getType() == item.getType()) {
+        StorageSign contentSign = new StorageSign(contents, _logger);
+        StorageSign itemSign = new StorageSign(item, _logger);
+        _logger.trace("cSign.isEmpty() == isign.isEmpty(): " + (contentSign.isEmpty() == itemSign.isEmpty()));
+        return contentSign.isEmpty() == itemSign.isEmpty();
       }
     }
 
@@ -786,8 +789,12 @@ public class StorageSign {
     }
 
     boolean isSignPost =  SignDefinition.sign_materials.contains(item.getType());
-    logger.trace(" isSignPost:" +isSignPost);
+    logger.trace(" isSignPost:" + isSignPost);
     if (isSignPost) {
+      // ないと思うけど、metaがなかったら比較できないのでfalse.
+      if(Objects.isNull(item.getItemMeta())) {
+        return false;
+      }
 
       logger.trace(" !item.getItemMeta().hasDisplayName(): " + !item.getItemMeta().hasDisplayName());
       if (!item.getItemMeta().hasDisplayName()) {
