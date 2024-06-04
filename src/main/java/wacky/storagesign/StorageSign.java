@@ -1,5 +1,27 @@
 package wacky.storagesign;
 
+import static java.util.Map.entry;
+import static org.bukkit.Material.AIR;
+import static org.bukkit.Material.BEEHIVE;
+import static org.bukkit.Material.BEE_NEST;
+import static org.bukkit.Material.ENCHANTED_BOOK;
+import static org.bukkit.Material.END_PORTAL;
+import static org.bukkit.Material.FIREWORK_ROCKET;
+import static org.bukkit.Material.GHAST_SPAWN_EGG;
+import static org.bukkit.Material.GREEN_DYE;
+import static org.bukkit.Material.LINGERING_POTION;
+import static org.bukkit.Material.OAK_SIGN;
+import static org.bukkit.Material.POTION;
+import static org.bukkit.Material.RED_DYE;
+import static org.bukkit.Material.SMOOTH_STONE_SLAB;
+import static org.bukkit.Material.SPLASH_POTION;
+import static org.bukkit.Material.STONE_SLAB;
+import static org.bukkit.Material.WHITE_BANNER;
+import static org.bukkit.Material.YELLOW_DYE;
+import static org.bukkit.Material.matchMaterial;
+import static org.bukkit.Material.values;
+
+import com.github.teruteru128.logger.Logger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -20,18 +42,15 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.NumberConversions;
-import com.github.teruteru128.logger.Logger;
 import wacky.storagesign.signdefinition.SignDefinition;
 import wacky.storagesign.signdefinition.SignMatStringDefinition;
-
-import static java.util.Map.entry;
-import static org.bukkit.Material.*;
 
 /**
  * StrageSignの実体クラスです.
  */
 public class StorageSign {
-  private  static final String storage_sign_name = "StorageSign";
+
+  private static final String storage_sign_name = "StorageSign";
 
   /**
    * block_entity_dataタグが付いて、単純な比較では収納ができないアイテム一覧.
@@ -40,14 +59,13 @@ public class StorageSign {
       EnumSet.of(BEE_NEST, BEEHIVE));
 
   /**
-   * SSの中でポーションと扱われるアイテム一覧.
-   * ポーション種類が追加されたら追加する.
+   * SSの中でポーションと扱われるアイテム一覧. ポーション種類が追加されたら追加する.
    */
-  private static final Set<Material> potion_materials = Collections.unmodifiableSet(EnumSet.of(POTION, SPLASH_POTION, LINGERING_POTION));
+  private static final Set<Material> potion_materials = Collections.unmodifiableSet(
+      EnumSet.of(POTION, SPLASH_POTION, LINGERING_POTION));
 
   /**
-   * 特殊なアイテム名とアイテム用マテリアルの変換一覧.
-   * 特殊処理をするアイテムが追加されたら追加する.
+   * 特殊なアイテム名とアイテム用マテリアルの変換一覧. 特殊処理をするアイテムが追加されたら追加する.
    */
   private static final Map<String, Material> mat_string_material_maps = Map.ofEntries(
       entry("SIGN", OAK_SIGN),
@@ -228,7 +246,7 @@ public class StorageSign {
   /**
    * Materialの内容から、空のStorageSignを作成して、ItemStackとして取得します.
    *
-   * @param smat Material
+   * @param smat   Material
    * @param amount Integer
    * @return ItemStack 空のStorageSign
    */
@@ -241,14 +259,14 @@ public class StorageSign {
   /**
    * 引数に渡された情報を基にStorageSignを作成して、ItemStackとして取得します.
    *
-   * @param type Material
+   * @param type   Material
    * @param amount Integer
-   * @param list List
+   * @param list   List
    * @return ItemStack StorageSign
    */
-  public static ItemStack createStorageSign(Material type, Integer amount, List<String> list){
+  public static ItemStack createStorageSign(Material type, Integer amount, List<String> list) {
     ItemStack sign;
-    if(Objects.isNull(amount)) {
+    if (Objects.isNull(amount)) {
       sign = new ItemStack(type);
     } else {
       sign = new ItemStack(type, amount);
@@ -355,7 +373,8 @@ public class StorageSign {
         return "HorseEgg";
       }
       // SS看板に当てはまるものなら、一覧から出力する.
-    } else if (SignMatStringDefinition.asMaterialStringMap().containsKey(this.mat) && this.damage == 1) {
+    } else if (SignMatStringDefinition.asMaterialStringMap().containsKey(this.mat)
+        && this.damage == 1) {
       logger.debug(SignMatStringDefinition.asMaterialStringMap().get(this.mat));
       return SignMatStringDefinition.asMaterialStringMap().get(this.mat);
     } else if (ENCHANTED_BOOK.equals(this.mat)) {
@@ -450,8 +469,7 @@ public class StorageSign {
   /**
    * StrageSignから、設置されている看板として表示される文字列を取得します.
    *
-   * @param i 看板の何行目の文字列を取得したいか指定します<br>
-   *        (ex.)１行目⇒0
+   * @param i 看板の何行目の文字列を取得したいか指定します<br> (ex.)１行目⇒0
    * @return 取得した文字列
    */
   public String getSigntext(int i) {
@@ -602,7 +620,7 @@ public class StorageSign {
 
       EnchantmentStorageMeta enchantMeta = (EnchantmentStorageMeta) item.getItemMeta();
       // ないと思うけど、metaがnullならfalse.
-      if(Objects.isNull(enchantMeta)) {
+      if (Objects.isNull(enchantMeta)) {
         return false;
       }
       if (enchantMeta.getStoredEnchants().size() == 1) {
@@ -610,7 +628,8 @@ public class StorageSign {
         Enchantment itemEnch =
             enchantMeta.getStoredEnchants().keySet().toArray(new Enchantment[0])[0];
 
-        if (itemEnch.equals(this.ench) && enchantMeta.getStoredEnchantLevel(itemEnch) == this.damage) {
+        if (itemEnch.equals(this.ench)
+            && enchantMeta.getStoredEnchantLevel(itemEnch) == this.damage) {
           logger.debug("Item is Similar");
           return true;
         }
@@ -625,10 +644,11 @@ public class StorageSign {
       if (this.mat.equals(item.getType())) {
         PotionMeta pom = (PotionMeta) item.getItemMeta();
         // ないと思うけど、pomがnullならfalse
-        if(Objects.isNull(pom) || Objects.isNull(pom.getBasePotionType())) {
+        if (Objects.isNull(pom) || Objects.isNull(pom.getBasePotionType())) {
           return false;
         }
-        logger.trace(" pom.getBasePotionType().equals(this.pot): " + pom.getBasePotionType().equals(this.pot));
+        logger.trace(" pom.getBasePotionType().equals(this.pot): " + pom.getBasePotionType()
+            .equals(this.pot));
         if (pom.getBasePotionType().equals(this.pot)) {
           return true;
         }
@@ -649,7 +669,8 @@ public class StorageSign {
       if (contents.getType() == item.getType()) {
         StorageSign contentSign = new StorageSign(contents, logger);
         StorageSign itemSign = new StorageSign(item, logger);
-        logger.trace("cSign.isEmpty() == isign.isEmpty(): " + (contentSign.isEmpty() == itemSign.isEmpty()));
+        logger.trace(
+            "cSign.isEmpty() == isign.isEmpty(): " + (contentSign.isEmpty() == itemSign.isEmpty()));
         return contentSign.isEmpty() == itemSign.isEmpty();
       }
     }
@@ -789,15 +810,16 @@ public class StorageSign {
       return false;
     }
 
-    boolean isSignPost =  SignDefinition.sign_materials.contains(item.getType());
+    boolean isSignPost = SignDefinition.sign_materials.contains(item.getType());
     logger.trace(" isSignPost:" + isSignPost);
     if (isSignPost) {
       // ないと思うけど、metaがなかったら比較できないのでfalse.
-      if(Objects.isNull(item.getItemMeta())) {
+      if (Objects.isNull(item.getItemMeta())) {
         return false;
       }
 
-      logger.trace(" !item.getItemMeta().hasDisplayName(): " + !item.getItemMeta().hasDisplayName());
+      logger.trace(
+          " !item.getItemMeta().hasDisplayName(): " + !item.getItemMeta().hasDisplayName());
       if (!item.getItemMeta().hasDisplayName()) {
         logger.debug(" itemMeta hasn't displayName.");
         return false;
@@ -823,7 +845,7 @@ public class StorageSign {
     logger.debug(" isStorageSign(Block):Start");
 
     boolean isSignPost = SignDefinition.sign_materials.contains(block.getType());
-    boolean isWallSign =  SignDefinition.wall_sign_materials.contains(block.getType());
+    boolean isWallSign = SignDefinition.wall_sign_materials.contains(block.getType());
     logger.trace(" block.getType(): " + block.getType());
     logger.trace(" isSignPost(block.getType()): " + isSignPost);
     logger.trace(" isWallSign(block.getType()) :" + isWallSign);
