@@ -11,6 +11,7 @@ import static org.bukkit.Material.GHAST_SPAWN_EGG;
 import static org.bukkit.Material.GREEN_DYE;
 import static org.bukkit.Material.LINGERING_POTION;
 import static org.bukkit.Material.OAK_SIGN;
+import static org.bukkit.Material.OMINOUS_BOTTLE;
 import static org.bukkit.Material.POTION;
 import static org.bukkit.Material.RED_DYE;
 import static org.bukkit.Material.SMOOTH_STONE_SLAB;
@@ -39,6 +40,7 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.OminousBottleMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.NumberConversions;
@@ -72,6 +74,7 @@ public class StorageSign {
       entry("ROSE_RED", RED_DYE),
       entry("DANDELION_YELLOW", YELLOW_DYE),
       entry("CACTUS_GREEN", GREEN_DYE),
+      entry("OMINOUS_BOTTLE", OMINOUS_BOTTLE),
       entry("ENCHBOOK", ENCHANTED_BOOK),
       entry("SPOTION", SPLASH_POTION),
       entry("LPOTION", LINGERING_POTION)
@@ -137,7 +140,12 @@ public class StorageSign {
       logger.debug("StorageSign isn't Empty");
       this.mat = getMaterial(str[0].split(":")[0]);
 
-      if (this.mat == ENCHANTED_BOOK) {
+      if (this.mat == OMINOUS_BOTTLE) {
+        logger.debug("StorageSign have OMINOUS_BOTTLE");
+        EnchantInfo ei = new EnchantInfo(this.mat, str[0].split(":"), logger);
+        this.damage = Short.valueOf(str[0].split(":")[1]);
+
+      }else if (this.mat == ENCHANTED_BOOK) {
         logger.debug("StorageSign have ENCHANTED_BOOK");
         EnchantInfo ei = new EnchantInfo(this.mat, str[0].split(":"), logger);
         this.damage = ei.getDamage();
@@ -182,7 +190,11 @@ public class StorageSign {
     this.mat = getMaterial(line2[0]);
     this.isEmpty = (this.mat == null || this.mat == AIR);
 
-    if (this.mat == ENCHANTED_BOOK) {
+    if (this.mat == OMINOUS_BOTTLE) {
+      logger.debug("OMINOUS_BOTTLE");
+      this.damage = Short.valueOf(line2[1]);
+
+    } else if (this.mat == ENCHANTED_BOOK) {
       logger.debug("ENCHANTED_BOOK");
       EnchantInfo ei = new EnchantInfo(this.mat, line2, logger);
       this.damage = ei.getDamage();
@@ -377,6 +389,10 @@ public class StorageSign {
         && this.damage == 1) {
       logger.debug(SignMatStringDefinition.asMaterialStringMap().get(this.mat));
       return SignMatStringDefinition.asMaterialStringMap().get(this.mat);
+    } else if (OMINOUS_BOTTLE.equals(this.mat)) {
+      logger.debug("OMINOUS_BOTTLE + data");
+      return this.mat +":" +  this.damage;
+
     } else if (ENCHANTED_BOOK.equals(this.mat)) {
       logger.debug("ENCHBOOK + data");
       return "ENCHBOOK:" + EnchantInfo.getShortType(this.ench) + ":" + this.damage;
@@ -427,6 +443,11 @@ public class StorageSign {
     if (this.isEmpty) {
       logger.debug("Empty");
       return emptySign(this.smat, this.stack);
+
+    } else if (OMINOUS_BOTTLE.equals(this.mat)) {
+      logger.debug("OMINOUS_BOTTLE");
+      list.add(this.mat.toString() + ":" + this.damage + " "
+          + this.amount);
 
     } else if (ENCHANTED_BOOK.equals(this.mat)) {
       logger.debug("ENCHANTED_BOOK");
@@ -543,6 +564,19 @@ public class StorageSign {
         return emptySign(this.mat);
       }
 
+    } else if (this.mat == OMINOUS_BOTTLE) {
+      logger.debug("OMINOUS_BOTTLE");
+      ItemStack item = new ItemStack(this.mat);
+      if(item.getMaxStackSize() <= this.amount) {
+        item.setAmount(item.getMaxStackSize());
+      } else {
+        item.setAmount(this.amount);
+      }
+      OminousBottleMeta ominousMeta = (OminousBottleMeta) item.getItemMeta();
+      Objects.requireNonNull(ominousMeta).setAmplifier(this.damage);
+      item.setItemMeta(ominousMeta);
+
+      return item;
     } else if (this.mat == ENCHANTED_BOOK) {
       logger.debug("ENCHANTED_BOOK");
       ItemStack item = new ItemStack(this.mat, 1);
@@ -615,7 +649,19 @@ public class StorageSign {
 
     }
 
-    if (this.mat == ENCHANTED_BOOK && item.getType() == ENCHANTED_BOOK) {
+    if (this.mat == OMINOUS_BOTTLE && item.getType() == OMINOUS_BOTTLE) {
+      logger.debug("OMINOUS_BOTTLE");
+      OminousBottleMeta omiItemMeta = (OminousBottleMeta) item.getItemMeta();
+      if (Objects.isNull(omiItemMeta)) {
+        return false;
+      }
+      if(omiItemMeta.hasAmplifier() && ((short)omiItemMeta.getAmplifier()) == this.damage) {
+        return true;
+      } else if(!omiItemMeta.hasAmplifier() && this.damage == 0) {
+        return true;
+      }
+
+    } else if (this.mat == ENCHANTED_BOOK && item.getType() == ENCHANTED_BOOK) {
       logger.debug("ENCHANTED_BOOK");
 
       EnchantmentStorageMeta enchantMeta = (EnchantmentStorageMeta) item.getItemMeta();
