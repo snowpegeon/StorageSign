@@ -267,13 +267,8 @@ public class StorageSignCore extends JavaPlugin implements Listener {
           storageSign.setPotion(pot);
         } else if (mat == Material.OMINOUS_BOTTLE) {
           logger.debug("main hand has OMINOUS_BOTTLE.");
-          OminousBottleMeta ominousMeta = (OminousBottleMeta) itemMainHand.getItemMeta();
           storageSign.setMaterial(mat);
-          if(ominousMeta.hasAmplifier()) {
-            storageSign.setDamage((short)ominousMeta.getAmplifier());
-          } else {
-            storageSign.setDamage((short)0);
-          }
+          storageSign.setDamage(OmniousBottleInfo.GetAmplifierWithMeta(itemMainHand.getItemMeta()));
         } else if (mat == Material.ENCHANTED_BOOK) {
           logger.debug("main hand has EnchantedBook.");
           EnchantmentStorageMeta enchantMeta = (EnchantmentStorageMeta) itemMainHand.getItemMeta();
