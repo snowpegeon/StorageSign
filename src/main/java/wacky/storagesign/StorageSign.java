@@ -1,8 +1,34 @@
 package wacky.storagesign;
 
+import static java.util.Map.entry;
+import static org.bukkit.Material.AIR;
+import static org.bukkit.Material.BEEHIVE;
+import static org.bukkit.Material.BEE_NEST;
+import static org.bukkit.Material.ENCHANTED_BOOK;
+import static org.bukkit.Material.END_PORTAL;
+import static org.bukkit.Material.FIREWORK_ROCKET;
+import static org.bukkit.Material.GHAST_SPAWN_EGG;
+import static org.bukkit.Material.GREEN_DYE;
+import static org.bukkit.Material.LINGERING_POTION;
+import static org.bukkit.Material.OAK_SIGN;
+import static org.bukkit.Material.POTION;
+import static org.bukkit.Material.RED_DYE;
+import static org.bukkit.Material.SMOOTH_STONE_SLAB;
+import static org.bukkit.Material.SPLASH_POTION;
+import static org.bukkit.Material.STONE_SLAB;
+import static org.bukkit.Material.WHITE_BANNER;
+import static org.bukkit.Material.YELLOW_DYE;
+import static org.bukkit.Material.matchMaterial;
+import static org.bukkit.Material.values;
+
+import com.github.teruteru128.logger.Logger;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -16,65 +42,92 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.NumberConversions;
-import com.github.teruteru128.logger.Logger;
-
-import static org.bukkit.Material.*;
+import wacky.storagesign.signdefinition.SignDefinition;
+import wacky.storagesign.signdefinition.SignMatStringDefinition;
 
 /**
  * StrageSignの実体クラスです.
  */
 public class StorageSign {
 
-  private static final org.apache.logging.log4j.Logger log = LogManager.getLogger(
-      StorageSign.class);
+  private static final String storage_sign_name = "StorageSign";
+
   /**
-   *
+   * block_entity_dataタグが付いて、単純な比較では収納ができないアイテム一覧.
+   */
+  private static final Set<Material> block_entity_data_Materials = Collections.unmodifiableSet(
+      EnumSet.of(BEE_NEST, BEEHIVE));
+
+  /**
+   * SSの中でポーションと扱われるアイテム一覧. ポーション種類が追加されたら追加する.
+   */
+  private static final Set<Material> potion_materials = Collections.unmodifiableSet(
+      EnumSet.of(POTION, SPLASH_POTION, LINGERING_POTION));
+
+  /**
+   * 特殊なアイテム名とアイテム用マテリアルの変換一覧. 特殊処理をするアイテムが追加されたら追加する.
+   */
+  private static final Map<String, Material> mat_string_material_maps = Map.ofEntries(
+      entry("SIGN", OAK_SIGN),
+      entry("ROSE_RED", RED_DYE),
+      entry("DANDELION_YELLOW", YELLOW_DYE),
+      entry("CACTUS_GREEN", GREEN_DYE),
+      entry("ENCHBOOK", ENCHANTED_BOOK),
+      entry("SPOTION", SPLASH_POTION),
+      entry("LPOTION", LINGERING_POTION)
+  );
+
+  /**
+   * 看板のアイテム素材.
    */
   protected Material smat;
+
   /**
-   *
+   * 看板に収納されるアイテム素材.
    */
   protected Material mat;
+
   /**
-   *
+   * 看板に設定されるダメージ値.
    */
   protected short damage;
   /**
-   *
+   * 看板に収納されているエンチャント本のエンチャント情報.
    */
   protected Enchantment ench;
   /**
-   *
+   * 看板に収納されているポーションの種類.
    */
   protected PotionType pot;
+
   /**
-   *
+   * 看板に収納されているアイテム数.
    */
   protected int amount;
+
   /**
-   *
+   * SSのアイテムスタック数.
    */
   protected int stack;
   /**
-   *
+   * 看板の中身が空か.
    */
   protected boolean isEmpty;
 
   /**
-   *
+   * ログ出力用ロガー.
    */
-  private Logger _logger;
-
-  // StorageSignだと確認してから使っちくりー
+  private final Logger logger;
 
   /**
-   *
+   * ItemStackに設定されている看板の情報からStorageSignを生成する.
    */
   public StorageSign(ItemStack item, Logger logger) {
-    this._logger = logger;
+    this.logger = logger;
     logger.debug("StorageSign:start");
 
-    String[] str = item.getItemMeta().getLore().get(0).split(" ");
+    List<String> lore = Objects.requireNonNull(item.getItemMeta()).getLore();
+    String[] str = Objects.requireNonNull(lore).getFirst().split(" ");
 
     if (str[0].matches("Empty")) {
       logger.debug("StorageSign is Empty");
@@ -90,8 +143,7 @@ public class StorageSign {
         this.damage = ei.getDamage();
         this.ench = ei.getEnchantType();
 
-      } else if (this.mat == POTION || this.mat == SPLASH_POTION
-          || this.mat == LINGERING_POTION) {
+      } else if (potion_materials.contains(this.mat)) {
         logger.debug("StorageSign have any Potion");
         // PotionInfo pi = new PotionInfo(mat, str[0].split(":"));
         String[] potionStr = str[0].split(":");
@@ -119,16 +171,11 @@ public class StorageSign {
     logger.debug("StorageSign:end");
   }
 
-  // Sto(ry
-  /*
-   * public StorageSign(Sign sign) { this(sign,Material.OAK_SIGN); }
-   */
-
   /**
-   *
+   * ブロックとして存在している看板の情報からStorageSignを生成する.
    */
   public StorageSign(Sign sign, Material signmat, Logger logger) {
-    this._logger = logger;
+    this.logger = logger;
     logger.debug("StorageSign(Material signmat):start");
     // 上と統合したい
     String[] line2 = sign.getSide(Side.FRONT).getLine(1).trim().split(":");
@@ -141,8 +188,7 @@ public class StorageSign {
       this.damage = ei.getDamage();
       this.ench = ei.getEnchantType();
 
-    } else if (this.mat == POTION || this.mat == SPLASH_POTION
-        || this.mat == LINGERING_POTION) {
+    } else if (potion_materials.contains(this.mat)) {
       logger.debug("any POTION");
       // PotionInfo pi = new PotionInfo(mat, line2);
       PotionInfo pi = new PotionInfo(this.mat, line2[0], line2[1], line2[2], logger);
@@ -166,50 +212,9 @@ public class StorageSign {
     this.stack = 1;
 
     // 壁掛け看板のチェック
-    if (signmat == OAK_WALL_SIGN) {
-      logger.debug("signmat is OAK_WALL_SIGN");
-      this.smat = OAK_SIGN;
-
-    } else if (signmat == BIRCH_WALL_SIGN) {
-      logger.debug("signmat is BIRCH_WALL_SIGN");
-      this.smat = BIRCH_SIGN;
-
-    } else if (signmat == SPRUCE_WALL_SIGN) {
-      logger.debug("signmat is SPRUCE_WALL_SIGN");
-      this.smat = SPRUCE_SIGN;
-
-    } else if (signmat == JUNGLE_WALL_SIGN) {
-      logger.debug("signmat is JUNGLE_WALL_SIGN");
-      this.smat = JUNGLE_SIGN;
-
-    } else if (signmat == ACACIA_WALL_SIGN) {
-      logger.debug("signmat is ACACIA_WALL_SIGN");
-      this.smat = ACACIA_SIGN;
-
-    } else if (signmat == DARK_OAK_WALL_SIGN) {
-      logger.debug("signmat is DARK_OAK_WALL_SIGN");
-      this.smat = DARK_OAK_SIGN;
-
-    } else if (signmat == CRIMSON_WALL_SIGN) {
-      logger.debug("signmat is CRIMSON_WALL_SIGN");
-      this.smat = CRIMSON_SIGN;
-
-    } else if (signmat == WARPED_WALL_SIGN) {
-      logger.debug("signmat is WARPED_WALL_SIGN");
-      this.smat = WARPED_SIGN;
-
-    } else if (signmat == MANGROVE_WALL_SIGN) {
-      logger.debug("signmat is MANGROVE_WALL_SIGN");
-      this.smat = MANGROVE_SIGN;
-
-    } else if (signmat == CHERRY_WALL_SIGN) {
-      logger.debug("signmat is CHERRY_WALL_SIGN");
-      this.smat = CHERRY_SIGN;
-
-    } else if (signmat == BAMBOO_WALL_SIGN) {
-      logger.debug("signmat is BAMBOO_WALL_SIGN");
-      this.smat = BAMBOO_SIGN;
-
+    if (SignDefinition.wall_normal_sign_maps.containsKey(signmat)) {
+      logger.debug("signmat is " + SignDefinition.wall_normal_sign_maps.get(signmat));
+      this.smat = SignDefinition.wall_normal_sign_maps.get(signmat);
     } else {
       logger.debug("Material isn't WALL_SIGN");
       this.smat = signmat;
@@ -231,138 +236,87 @@ public class StorageSign {
   /**
    * Materialの内容から、空のStorageSignを作成して、ItemStackとして取得します.
    *
-   * @param smat Material
+   * @param signMat Material
    * @return ItemStack 空のStorageSign
    */
-  public static ItemStack emptySign(Material smat) {
-    ItemStack emptySign = new ItemStack(smat);
-    ItemMeta meta = emptySign.getItemMeta();
+  public static ItemStack emptySign(Material signMat) {
+    return emptySign(signMat, null);
+  }
+
+  /**
+   * Materialの内容から、空のStorageSignを作成して、ItemStackとして取得します.
+   *
+   * @param smat   Material
+   * @param amount Integer
+   * @return ItemStack 空のStorageSign
+   */
+  public static ItemStack emptySign(Material smat, Integer amount) {
     List<String> list = new ArrayList<>();
-
-    meta.setDisplayName("StorageSign");
     list.add("Empty");
-    meta.setLore(list);
-    emptySign.setItemMeta(meta);
+    return createStorageSign(smat, amount, list);
+  }
 
-    return emptySign;
+  /**
+   * 引数に渡された情報を基にStorageSignを作成して、ItemStackとして取得します.
+   *
+   * @param type   Material
+   * @param amount Integer
+   * @param list   List
+   * @return ItemStack StorageSign
+   */
+  public static ItemStack createStorageSign(Material type, Integer amount, List<String> list) {
+    ItemStack sign;
+    if (Objects.isNull(amount)) {
+      sign = new ItemStack(type);
+    } else {
+      sign = new ItemStack(type, amount);
+    }
+
+    ItemMeta meta = sign.getItemMeta();
+    Objects.requireNonNull(meta).setDisplayName(storage_sign_name);
+    meta.setLore(list);
+    meta.setMaxStackSize(ConfigLoader.getMaxStackSize());
+    sign.setItemMeta(meta);
+
+    return sign;
   }
 
   /**
    * 指定された文字列でMaterialに変換します.
    *
-   * @param str
+   * @param str String
    * @return Material
    */
   protected Material getMaterial(String str) {
-    _logger.debug("getMaterial:start");
-    // if (str.matches("EmptySign")) {
-    // return Material.END_PORTAL;
-    // }
-    // if (str.startsWith("REDSTONE_TORCH")) return Material.REDSTONE_TORCH;
-    // if (str.startsWith("RS_COMPARATOR")) return Material.COMPARATOR;
-    // if (str.startsWith("STAINGLASS_P")) return Material.LEGACY_STAINED_GLASS_PANE;
-    // if (str.startsWith("BROWN_MUSH_B")) return Material.BROWN_MUSHROOM_BLOCK;
-    // if (str.startsWith("RED_MUSH_BLO")) return Material.RED_MUSHROOM_BLOCK;
+    logger.debug("getMaterial:start");
     if (str.matches("")) {
-      _logger.debug("Material is AIR");
+      logger.debug("Material is AIR");
       return AIR;
 
-    } else if (str.matches("EmptySign") || str.matches("OakStorageSign")) {
-      _logger.debug("Material is OakStorageSign");
+    } else if (str.matches("EmptySign")) {
+      logger.debug("Material is OldOakStorageSign");
       this.damage = 1;
       return OAK_SIGN;
-
-    } else if (str.matches("SpruceStorageSign")) {
-      _logger.debug("Material is SpruceStorageSign");
+    } else if (SignMatStringDefinition.asStringMaterialMap().containsKey(str)) {
+      logger.debug("Material is " + SignMatStringDefinition.asStringMaterialMap().get(str));
       this.damage = 1;
-      return SPRUCE_SIGN;
-
-    } else if (str.matches("BirchStorageSign")) {
-      _logger.debug("Material is BirchStorageSign");
+      return SignMatStringDefinition.asStringMaterialMap().get(str);
+    } else if (mat_string_material_maps.containsKey(str)) {
+      logger.debug("Material is " + mat_string_material_maps.get(str));
       this.damage = 1;
-      return BIRCH_SIGN;
-
-    } else if (str.matches("JungleStorageSign")) {
-      _logger.debug("Material is JungleStorageSign");
-      this.damage = 1;
-      return JUNGLE_SIGN;
-
-    } else if (str.matches("AcaciaStorageSign")) {
-      _logger.debug("Material is AcaciaStorageSign");
-      this.damage = 1;
-      return ACACIA_SIGN;
-
-    } else if (str.matches("DarkOakStorageSign")) {
-      _logger.debug("Material is DarkOakStorageSign");
-      this.damage = 1;
-      return DARK_OAK_SIGN;
-
-    } else if (str.matches("CrimsonStorageSign")) {
-      _logger.debug("Material is CrimsonStorageSign");
-      this.damage = 1;
-      return CRIMSON_SIGN;
-
-    } else if (str.matches("WarpedStorageSign")) {
-      _logger.debug("Material is WarpedStorageSign");
-      this.damage = 1;
-      return WARPED_SIGN;
-
-    } else if (str.matches("MangroveStorageSign")) {
-      _logger.debug("Material is MangroveStorageSign");
-      this.damage = 1;
-      return MANGROVE_SIGN;
-
-    } else if (str.matches("CherryStorageSign")) {
-      _logger.debug("Material is CherryStorageSign");
-      this.damage = 1;
-      return CHERRY_SIGN;
-
-    } else if (str.matches("BambooStorageSign")) {
-      _logger.debug("Material is BambooStorageSign");
-      this.damage = 1;
-      return BAMBOO_SIGN;
+      return mat_string_material_maps.get(str);
     }
     if (str.matches("HorseEgg")) {
-      _logger.debug("Material is HorseEgg");
+      logger.debug("Material is HorseEgg");
       this.damage = 1;
       return END_PORTAL;
       // ガスト卵でよくね？
     }
-    // 1.13→1.14用
-    if (str.startsWith("SIGN")) {
-      _logger.debug("Material is SIGN");
-      return OAK_SIGN;
-    }
-    if (str.startsWith("ROSE_RED")) {
-      _logger.debug("Material is ROSE_RED");
-      return RED_DYE;
-    }
-    if (str.startsWith("DANDELION_YELLOW")) {
-      _logger.debug("Material is DANDELION_YELLOW");
-      return YELLOW_DYE;
-    }
-    if (str.startsWith("CACTUS_GREEN")) {
-      _logger.debug("Material is CACTUS_GREEN");
-      return GREEN_DYE;
-    }
-    // 省略用
-    if (str.startsWith("ENCHBOOK")) {
-      _logger.debug("Material is ENCHBOOK");
-      return ENCHANTED_BOOK;
-    }
-    if (str.startsWith("SPOTION")) {
-      _logger.debug("Material is SPOTION");
-      return SPLASH_POTION;
-    }
-    if (str.startsWith("LPOTION")) {
-      _logger.debug("Material is LPOTION");
-      return LINGERING_POTION;
-    }
 
     Material mat = matchMaterial(str);
 
-    if (mat == null) {
-      _logger.debug("Material is null");
+    if (Objects.isNull(mat)) {
+      logger.debug("Material is null");
       // 後ろ切れる程度なら対応可
       for (Material m : values()) {
         if (m.toString().startsWith(str)) {
@@ -372,9 +326,8 @@ public class StorageSign {
     }
 
     // nullなら空.
-    _logger.debug("Material isn't bifurcation");
+    logger.debug("Material isn't bifurcation");
     return mat;
-
   }
 
   /**
@@ -383,7 +336,7 @@ public class StorageSign {
    * @return Material
    */
   public Material getMaterial() {
-    _logger.debug(" return this.mat");
+    logger.debug(" return this.mat");
     return this.mat;
   }
 
@@ -391,7 +344,7 @@ public class StorageSign {
    * フィールド変数：matのsetter.
    */
   public void setMaterial(Material mat) {
-    _logger.debug("setMaterial to Material mat");
+    logger.debug("setMaterial to Material mat");
     this.mat = mat;
   }
 
@@ -401,112 +354,62 @@ public class StorageSign {
    * @return Materialの短い名前
    */
   protected String getShortName() {
-    _logger.debug("getShortName:start");
+    logger.debug("getShortName:start");
     // 2行目の記載内容
-    _logger.trace("this.mat=" + mat);
+    logger.trace("this.mat=" + mat);
     if (this.mat == null || this.mat == AIR) {
-      _logger.debug("empty");
+      logger.debug("empty");
       return "";
 
     } else if (this.mat == END_PORTAL) {
-      _logger.debug("Material.END_PORTAL");
+      logger.debug("Material.END_PORTAL");
       if (this.damage == 0) {
-        _logger.debug("OakStorageSign");
+        logger.debug("OakStorageSign");
         return "OakStorageSign";
       }
 
       if (this.damage == 1) {
-        _logger.debug("HorseEgg");
+        logger.debug("HorseEgg");
         return "HorseEgg";
       }
-
-    } else if (this.mat == OAK_SIGN && this.damage == 1) {
-      _logger.debug("OakStorageSign");
-      return "OakStorageSign";
-
-    } else if (this.mat == SPRUCE_SIGN && this.damage == 1) {
-      _logger.debug("SpruceStorageSign");
-      return "SpruceStorageSign";
-
-    } else if (this.mat == BIRCH_SIGN && this.damage == 1) {
-      _logger.debug("BirchStorageSign");
-      return "BirchStorageSign";
-
-    } else if (this.mat == JUNGLE_SIGN && this.damage == 1) {
-      _logger.debug("JungleStorageSign");
-      return "JungleStorageSign";
-
-    } else if (this.mat == ACACIA_SIGN && this.damage == 1) {
-      _logger.debug("AcaciaStorageSign");
-      return "AcaciaStorageSign";
-
-    } else if (this.mat == DARK_OAK_SIGN && this.damage == 1) {
-      _logger.debug("DarkOakStorageSign");
-      return "DarkOakStorageSign";
-
-    } else if (this.mat == CRIMSON_SIGN && this.damage == 1) {
-      _logger.debug("CrimsonStorageSign");
-      return "CrimsonStorageSign";
-
-    } else if (this.mat == WARPED_SIGN && this.damage == 1) {
-      _logger.debug("WarpedStorageSign");
-      return "WarpedStorageSign";
-
-    } else if (this.mat == MANGROVE_SIGN && this.damage == 1) {
-      _logger.debug("MangroveStorageSign");
-      return "MangroveStorageSign";
-
-    } else if (this.mat == CHERRY_SIGN && this.damage == 1) {
-      _logger.debug("CherryStorageSign");
-      return "CherryStorageSign";
-
-    } else if (this.mat == BAMBOO_SIGN && this.damage == 1) {
-      _logger.debug("BambooStorageSign");
-      return "BambooStorageSign";
-
-      // else if (mat == Material.LEGACY_STAINED_GLASS_PANE) return damage == 0 ? "STAINGLASS_PANE"
-      // : "STAINGLASS_P:" + damage;
-      // else if (mat == Material.LEGACY_REDSTONE_COMPARATOR) return "RS_COMPARATOR";
-      // else if (mat == Material.LEGACY_REDSTONE_TORCH_ON) return "REDSTONE_TORCH";
-      // else if (mat == Material.LEGACY_HUGE_MUSHROOM_1) return damage == 0 ? "BROWN_MUSH_BLOC" :
-      // "BROWN_MUSH_B:" + damage;
-      // else if (mat == Material.LEGACY_HUGE_MUSHROOM_2) return damage == 0 ? "RED_MUSH_BLOCK" :
-      // "RED_MUSH_BLO:" + damage;
-
-    } else if (this.mat == ENCHANTED_BOOK) {
-      _logger.debug("ENCHBOOK + data");
+      // SS看板に当てはまるものなら、一覧から出力する.
+    } else if (SignMatStringDefinition.asMaterialStringMap().containsKey(this.mat)
+        && this.damage == 1) {
+      logger.debug(SignMatStringDefinition.asMaterialStringMap().get(this.mat));
+      return SignMatStringDefinition.asMaterialStringMap().get(this.mat);
+    } else if (ENCHANTED_BOOK.equals(this.mat)) {
+      logger.debug("ENCHBOOK + data");
       return "ENCHBOOK:" + EnchantInfo.getShortType(this.ench) + ":" + this.damage;
 
-    } else if (this.mat == POTION || this.mat == SPLASH_POTION
-        || this.mat == LINGERING_POTION) {
-      _logger.debug("any POTION");
+    } else if (potion_materials.contains(this.mat)) {
+      logger.debug("any POTION");
       return PotionInfo.getSignData(this.mat, pot, this.damage);
     }
     // リミットブレイク
     int limit = 99;
     if (this.damage != 0) {
-      _logger.debug("limit break");
+      logger.debug("limit break");
       limit -= String.valueOf(this.damage).length() + 1;
     }
 
     if (this.mat.toString().length() > limit) {
-      _logger.debug("this.mat.toString().length() > limit");
+      logger.debug("this.mat.toString().length() > limit");
       if (this.damage != 0) {
-        _logger.debug("item damage isn't 0");
+        logger.debug("item damage isn't 0");
         return this.mat.toString().substring(0, limit) + ":" + this.damage;
       }
 
-      _logger.debug("item damage is 0");
+      logger.debug("item damage is 0");
       return this.mat.toString().substring(0, limit);
 
     } else {
-      _logger.debug("else this.mat.toString().length() > limit");
+      logger.debug("else this.mat.toString().length() > limit");
       if (this.damage != 0) {
-        _logger.debug("item damage isn't 0");
+        logger.debug("item damage isn't 0");
         return this.mat.toString() + ":" + this.damage;
       }
 
-      _logger.debug("item damage is 0");
+      logger.debug("item damage is 0");
       return this.mat.toString();
     }
   }
@@ -517,38 +420,30 @@ public class StorageSign {
    * @return ItemStack 空のStorageSign
    */
   public ItemStack getStorageSign() {
-    _logger.debug("getStorageSign:stert");
-    ItemStack item = new ItemStack(this.smat, this.stack);
-    ItemMeta meta = item.getItemMeta();
-    meta.setDisplayName("StorageSign");
+    logger.debug("getStorageSign:start");
     List<String> list = new ArrayList<>();
 
     // IDとMaterial名が混ざってたり、エンチャ本対応したり
     if (this.isEmpty) {
-      _logger.debug("Empty");
-      list.add("Empty");
+      logger.debug("Empty");
+      return emptySign(this.smat, this.stack);
 
-    } else if (this.mat == ENCHANTED_BOOK) {
-      _logger.debug("ENCHANTED_BOOK");
+    } else if (ENCHANTED_BOOK.equals(this.mat)) {
+      logger.debug("ENCHANTED_BOOK");
       list.add(this.mat.toString() + ":" + this.ench.getKey().getKey() + ":" + this.damage + " "
           + this.amount);
 
-    } else if (this.mat == POTION || this.mat == SPLASH_POTION
-        || this.mat == LINGERING_POTION) {
-      _logger.debug("any POTION");
+    } else if (potion_materials.contains(this.mat)) {
+      logger.debug("any POTION");
       list.add(PotionInfo.getTagData(this.mat, pot, this.damage, this.amount));
 
     } else {
-      _logger.debug("other");
+      logger.debug("other");
       list.add(getShortName() + " " + this.amount);
 
     }
-
-    meta.setLore(list);
-    item.setItemMeta(meta);
-
-    _logger.debug("getStorageSign:end");
-    return item;
+    logger.debug("getStorageSign:end");
+    return createStorageSign(this.smat, this.stack, list);
   }
 
   /**
@@ -557,32 +452,31 @@ public class StorageSign {
    * @return ItemStack 空のHoerseEgg
    */
   private ItemStack emptyHorseEgg() {
-    _logger.debug("emptyHorseEgg:start");
+    logger.debug("emptyHorseEgg:start");
     ItemStack emptyHorseEgg = new ItemStack(GHAST_SPAWN_EGG);
     ItemMeta meta = emptyHorseEgg.getItemMeta();
     List<String> list = new ArrayList<>();
 
-    meta.setDisplayName("HorseEgg");
+    Objects.requireNonNull(meta).setDisplayName("HorseEgg");
     list.add("Empty");
     meta.setLore(list);
     emptyHorseEgg.setItemMeta(meta);
 
-    _logger.debug("emptyHorseEgg:end");
+    logger.debug("emptyHorseEgg:end");
     return emptyHorseEgg;
   }
 
   /**
    * StrageSignから、設置されている看板として表示される文字列を取得します.
    *
-   * @param i 看板の何行目の文字列を取得したいか指定します<br>
-   *        (ex.)１行目⇒0
+   * @param i 看板の何行目の文字列を取得したいか指定します<br> (ex.)１行目⇒0
    * @return 取得した文字列
    */
   public String getSigntext(int i) {
-    _logger.debug("getSigntext:start");
+    logger.debug("getSigntext:start");
     String[] sign = getSigntexts();
-    _logger.trace("sign[]=" + String.join(" / ", sign));
-    _logger.debug("getSigntext:end");
+    logger.trace("sign[]=" + String.join(" / ", sign));
+    logger.debug("getSigntext:end");
     return sign[i];
   }
 
@@ -592,16 +486,16 @@ public class StorageSign {
    * @return 取得した文字列
    */
   public String[] getSigntexts() {
-    _logger.debug("getSigntexts:start");
+    logger.debug("getSigntexts:start");
     String[] sign = new String[4];
 
-    sign[0] = "StorageSign";
+    sign[0] = storage_sign_name;
     sign[1] = getShortName();
     sign[2] = String.valueOf(this.amount);
-    sign[3] = String.valueOf(this.amount / 3456) + "LC " + String.valueOf(this.amount % 3456 / 64)
-        + "s " + String.valueOf(this.amount % 64);
+    sign[3] = (this.amount / 3456) + "LC " + (this.amount % 3456 / 64)
+        + "s " + (this.amount % 64);
 
-    _logger.debug("getSigntext:end");
+    logger.debug("getSigntext:end");
     return sign;
   }
 
@@ -612,83 +506,74 @@ public class StorageSign {
    */
   public ItemStack getContents() {
     // 中身取得、一部アイテム用の例外
-    _logger.debug("getContents:start");
+    logger.debug("getContents:start");
     if (this.mat == null) {
-      _logger.debug("StrageSign haven't item");
+      logger.debug("StrageSign haven't item");
       return null;
     }
 
     if (this.mat == END_PORTAL) {
-      _logger.debug("Contents is END_PORTAL");
+      logger.debug("Contents is END_PORTAL");
       if (this.damage == 0) {
-        _logger.debug("emptySign");
+        logger.debug("emptySign");
         return emptySign();
       }
 
       if (this.damage == 1) {
-        _logger.debug("emptyHorseEgg");
+        logger.debug("emptyHorseEgg");
         return emptyHorseEgg();
       }
 
     }
 
     if (this.mat == STONE_SLAB) {
-      _logger.debug("STONE_SLAB");
+      logger.debug("STONE_SLAB");
       // ダメージ値0にする
       return new ItemStack(this.mat, 1);
 
-    } else if (this.mat == OAK_SIGN || this.mat == SPRUCE_SIGN
-        || this.mat == BIRCH_SIGN || this.mat == JUNGLE_SIGN
-        || this.mat == ACACIA_SIGN || this.mat == DARK_OAK_SIGN
-        || this.mat == CRIMSON_SIGN || this.mat == WARPED_SIGN
-        || this.mat == MANGROVE_SIGN || this.mat == CHERRY_SIGN
-        || this.mat == BAMBOO_SIGN) {
-      _logger.debug("any SIGN");
+    } else if (SignDefinition.sign_materials.contains(this.mat)) {
+      logger.debug("any SIGN");
 
       if (this.damage == 0) {
-        _logger.debug("damage is 0");
+        logger.debug("damage is 0");
         return new ItemStack(this.mat, 1);
 
       } else {
-        _logger.debug("damage isn't 0");
+        logger.debug("damage isn't 0");
         return emptySign(this.mat);
       }
 
     } else if (this.mat == ENCHANTED_BOOK) {
-      _logger.debug("ENCHANTED_BOOK");
+      logger.debug("ENCHANTED_BOOK");
       ItemStack item = new ItemStack(this.mat, 1);
 
       EnchantmentStorageMeta enchantMeta = (EnchantmentStorageMeta) item.getItemMeta();
-      enchantMeta.addStoredEnchant(this.ench, this.damage, true);
+      Objects.requireNonNull(enchantMeta).addStoredEnchant(this.ench, this.damage, true);
       item.setItemMeta(enchantMeta);
 
       return item;
 
-    } else if (this.mat == POTION || this.mat == SPLASH_POTION
-        || this.mat == LINGERING_POTION) {
-      _logger.debug("any POTION");
+    } else if (potion_materials.contains(this.mat)) {
+      logger.debug("any POTION");
 
       ItemStack item = new ItemStack(this.mat, 1);
       PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
-      // potionMeta.setBasePotionData(new PotionData(pot, damage == 1, damage == 2));
-
-      potionMeta.setBasePotionType(this.pot);
+      Objects.requireNonNull(potionMeta).setBasePotionType(this.pot);
       item.setItemMeta(potionMeta);
 
       return item;
 
     } else if (this.mat == FIREWORK_ROCKET) {
-      _logger.debug("FIREWORK_ROCKET");
+      logger.debug("FIREWORK_ROCKET");
       ItemStack item = new ItemStack(this.mat, 1);
       FireworkMeta fireworkMeta = (FireworkMeta) item.getItemMeta();
-
-      fireworkMeta.setPower(this.damage);
+      Objects.requireNonNull(fireworkMeta).setPower(this.damage);
       item.setItemMeta(fireworkMeta);
 
       return item;
 
     } else if (this.mat == WHITE_BANNER && this.damage == 8) {
-      _logger.debug("WHITE_BANNER & damage is 8");
+      logger.debug("WHITE_BANNER & damage is 8");
 
       ItemStack item = new ItemStack(this.mat, 1);
       // どこかからコピー
@@ -699,7 +584,7 @@ public class StorageSign {
     }
 
     if (this.damage == 0) {
-      _logger.debug("damage is 0");
+      logger.debug("damage is 0");
       // 大半はダメージなくなった
       return new ItemStack(this.mat, 1);
     }
@@ -707,13 +592,13 @@ public class StorageSign {
     var itemStack = new ItemStack(this.mat, 1);
     var meta = itemStack.getItemMeta();
     if (meta instanceof Damageable dam) {
-      _logger.debug("meta instanceof Damageable dam");
+      logger.debug("meta instanceof Damageable dam");
       dam.setDamage(this.damage);
       itemStack.setItemMeta(meta);
     }
 
     // ツール系のみダメージあり
-    _logger.debug("Item is tools");
+    logger.debug("Item is tools");
     return itemStack;
   }
 
@@ -723,72 +608,76 @@ public class StorageSign {
    * @return true：回収できるよ/false：回収できないよ
    */
   public boolean isSimilar(ItemStack item) {
-    _logger.debug(" isSimilar:start");
+    logger.debug(" isSimilar:start");
     if (item == null) {
-      _logger.debug(" Item isn't Similar");
+      logger.debug(" Item isn't Similar");
       return false;
 
     }
 
     if (this.mat == ENCHANTED_BOOK && item.getType() == ENCHANTED_BOOK) {
-      _logger.debug("ENCHANTED_BOOK");
+      logger.debug("ENCHANTED_BOOK");
 
       EnchantmentStorageMeta enchantMeta = (EnchantmentStorageMeta) item.getItemMeta();
-
+      // ないと思うけど、metaがnullならfalse.
+      if (Objects.isNull(enchantMeta)) {
+        return false;
+      }
       if (enchantMeta.getStoredEnchants().size() == 1) {
-        _logger.debug("enchantMeta.getStoredEnchants().size() = 1");
+        logger.debug("enchantMeta.getStoredEnchants().size() = 1");
         Enchantment itemEnch =
             enchantMeta.getStoredEnchants().keySet().toArray(new Enchantment[0])[0];
 
-        if (itemEnch == this.ench && enchantMeta.getStoredEnchantLevel(itemEnch) == this.damage) {
-          _logger.debug("Item is Similar");
+        if (itemEnch.equals(this.ench)
+            && enchantMeta.getStoredEnchantLevel(itemEnch) == this.damage) {
+          logger.debug("Item is Similar");
           return true;
-
         }
       }
-      _logger.debug(" Item isn't Similar");
+      logger.debug(" Item isn't Similar");
       return false;
 
-    } else if (isShulker(this.mat)) {
-      _logger.debug(" Shulker");
-      // 後回し
+    } else if (potion_materials.contains(this.mat)) {
+      logger.debug(" This mat is PotionSeries.");
 
-    } else if (this.mat == POTION || this.mat == SPLASH_POTION
-        || this.mat == LINGERING_POTION) {
-      _logger.debug(" This mat is PotionSeries.");
-
-      _logger.trace(" this.mat.equals(item.getType()): " + this.mat.equals(item.getType()));
+      logger.trace(" this.mat.equals(item.getType()): " + this.mat.equals(item.getType()));
       if (this.mat.equals(item.getType())) {
         PotionMeta pom = (PotionMeta) item.getItemMeta();
-        _logger.trace(" pom.getBasePotionType().equals(this.pot): " + pom.getBasePotionType().equals(this.pot));
+        // ないと思うけど、pomがnullならfalse
+        if (Objects.isNull(pom) || Objects.isNull(pom.getBasePotionType())) {
+          return false;
+        }
+        logger.trace(" pom.getBasePotionType().equals(this.pot): " + pom.getBasePotionType()
+            .equals(this.pot));
         if (pom.getBasePotionType().equals(this.pot)) {
           return true;
         }
       }
+    } else if (block_entity_data_Materials.contains(this.mat)) {
+      // block_entity_data_Materialsに入ってるものは、isSimilarで比較できないので、Materialが一緒かで判定
+      logger.debug(" This mat is block_entity_data_Materials.");
+      return this.mat.equals(item.getType());
     }
 
     // SSなのかだけ、別ロジックで判定
     ItemStack contents = getContents();
-    boolean isStorageSign = isStorageSign(item, _logger);
-    boolean contentIsStorageSign = isStorageSign(contents, _logger);
-    boolean isSignPost = isSignPost(item.getType(), _logger);
-    _logger.trace("isStorageSign: " + isStorageSign);
-    _logger.trace("contents.getType() == item.getType(): " + (contents.getType() == item.getType()));
-    if(isStorageSign && contentIsStorageSign){
-      if(contents.getType() == item.getType()){
-        StorageSign cSign = new StorageSign(contents, _logger);
-        StorageSign iSign = new StorageSign(item, _logger);
-        _logger.trace("cSign.isEmpty() == iSign.isEmpty(): " + (cSign.isEmpty() == iSign.isEmpty()));
-        return cSign.isEmpty() == iSign.isEmpty();
+    boolean isStorageSign = isStorageSign(item, logger);
+    boolean contentIsStorageSign = isStorageSign(contents, logger);
+    logger.trace("isStorageSign: " + isStorageSign);
+    logger.trace("contents.getType() == item.getType(): " + (contents.getType() == item.getType()));
+    if (isStorageSign && contentIsStorageSign) {
+      if (contents.getType() == item.getType()) {
+        StorageSign contentSign = new StorageSign(contents, logger);
+        StorageSign itemSign = new StorageSign(item, logger);
+        logger.trace(
+            "cSign.isEmpty() == isign.isEmpty(): " + (contentSign.isEmpty() == itemSign.isEmpty()));
+        return contentSign.isEmpty() == itemSign.isEmpty();
       }
-//    } else if(isSignPost) {
-//      // StorageSignじゃなくて、ただの看板の場合はfalse.
-//      return false;
     }
 
     // それ以外のItemはisSimilarで判定
     boolean isSimilar = contents.isSimilar(item);
-    _logger.trace(" isSimilar: " + isSimilar);
+    logger.trace(" isSimilar: " + isSimilar);
     return isSimilar;
   }
 
@@ -796,7 +685,7 @@ public class StorageSign {
    * フィールド変数：damageのgetter.
    */
   public short getDamage() {
-    _logger.debug(" getDamage");
+    logger.debug(" getDamage");
     return this.damage;
   }
 
@@ -804,7 +693,7 @@ public class StorageSign {
    * フィールド変数：damageのsetter.
    */
   public void setDamage(short damage) {
-    _logger.debug("setDamage");
+    logger.debug("setDamage");
     this.damage = damage;
   }
 
@@ -812,7 +701,7 @@ public class StorageSign {
    * フィールド変数：amountのgetter.
    */
   public int getAmount() {
-    _logger.debug("getAmount");
+    logger.debug("getAmount");
     return this.amount;
   }
 
@@ -820,7 +709,7 @@ public class StorageSign {
    * フィールド変数：amountのsetter.
    */
   public void setAmount(int amount) {
-    _logger.debug("setAmount");
+    logger.debug("setAmount");
     this.amount = amount;
     this.isEmpty = amount == 0;
   }
@@ -831,19 +720,19 @@ public class StorageSign {
    * @param amount 加算対象の値
    */
   public void addAmount(int amount) {
-    _logger.debug("addAmount:start");
+    logger.debug("addAmount:start");
     if (this.amount < -amount) {
-      _logger.debug("set amount 0");
+      logger.debug("set amount 0");
       this.amount = 0;
 
     } else {
-      _logger.debug("add Amount");
+      logger.debug("add Amount");
       this.amount += amount;
 
     }
 
     if (this.amount < 0) {
-      _logger.debug("set amount to MAX_VALUE");
+      logger.debug("set amount to MAX_VALUE");
       this.amount = Integer.MAX_VALUE;
 
     }
@@ -857,7 +746,7 @@ public class StorageSign {
    * @return StackSize
    */
   public int getStackSize() {
-    _logger.debug("get StorageSign StackSize");
+    logger.debug("get StorageSign StackSize");
     return this.stack;
   }
 
@@ -867,7 +756,7 @@ public class StorageSign {
    * @return true：空っぽ/false：入ってます
    */
   public boolean isEmpty() {
-    _logger.debug("Check StrageSign is Empty");
+    logger.debug("Check StrageSign is Empty");
     return this.isEmpty;
   }
 
@@ -875,7 +764,7 @@ public class StorageSign {
    * フィールド変数：enchのgetter.
    */
   public Enchantment getEnchant() {
-    _logger.debug("getEnchant");
+    logger.debug("getEnchant");
     return this.ench;
   }
 
@@ -883,7 +772,7 @@ public class StorageSign {
    * フィールド変数：enchのsetter.
    */
   public void setEnchant(Enchantment ench) {
-    _logger.debug("setEnchant");
+    logger.debug("setEnchant");
     this.ench = ench;
   }
 
@@ -891,7 +780,7 @@ public class StorageSign {
    * フィールド変数：potのgetter.
    */
   public PotionType getPotion() {
-    _logger.debug("getPotion");
+    logger.debug("getPotion");
     return this.pot;
   }
 
@@ -899,7 +788,7 @@ public class StorageSign {
    * フィールド変数：potのsetter.
    */
   public void setPotion(PotionType pot) {
-    _logger.debug("setPotion");
+    logger.debug("setPotion");
     this.pot = pot;
   }
 
@@ -907,45 +796,13 @@ public class StorageSign {
    * フィールド変数：smatのgetter.
    */
   public Material getSmat() {
-    _logger.debug(" getSmat");
+    logger.debug(" getSmat");
     return this.smat;
   }
 
   /**
-   * マテリアルがシュルカーボックスかを検査します.
-   *
-   * @return true：シュルカーボックスにだよ/false：シュルカーボックスじゃないよ
+   * 渡されたItemStackがStorageSignか判断.
    */
-  private boolean isShulker(Material mat) {
-    _logger.debug("isShulker:start");
-    switch (mat) {
-      case SHULKER_BOX:
-      case WHITE_SHULKER_BOX:
-      case ORANGE_SHULKER_BOX:
-      case MAGENTA_SHULKER_BOX:
-      case LIGHT_BLUE_SHULKER_BOX:
-      case YELLOW_SHULKER_BOX:
-      case LIME_SHULKER_BOX:
-      case PINK_SHULKER_BOX:
-      case GRAY_SHULKER_BOX:
-      case LIGHT_GRAY_SHULKER_BOX:
-      case CYAN_SHULKER_BOX:
-      case PURPLE_SHULKER_BOX:
-      case BLUE_SHULKER_BOX:
-      case BROWN_SHULKER_BOX:
-      case GREEN_SHULKER_BOX:
-      case RED_SHULKER_BOX:
-      case BLACK_SHULKER_BOX:
-        _logger.debug("Item is Shulker");
-        return true;
-
-      default:
-
-    }
-    _logger.debug("Item isn't Shulker");
-    return false;
-  }
-
   public static boolean isStorageSign(ItemStack item, Logger logger) {
     logger.debug(" isStorageSign(ItemStack):Start");
     if (item == null) {
@@ -953,19 +810,24 @@ public class StorageSign {
       return false;
     }
 
-    boolean isSignPost =  isSignPost(item.getType(), logger);
-    logger.trace(" isSignPost:" +isSignPost);
+    boolean isSignPost = SignDefinition.sign_materials.contains(item.getType());
+    logger.trace(" isSignPost:" + isSignPost);
     if (isSignPost) {
+      // ないと思うけど、metaがなかったら比較できないのでfalse.
+      if (Objects.isNull(item.getItemMeta())) {
+        return false;
+      }
 
-      logger.trace(" !item.getItemMeta().hasDisplayName(): " + !item.getItemMeta().hasDisplayName());
+      logger.trace(
+          " !item.getItemMeta().hasDisplayName(): " + !item.getItemMeta().hasDisplayName());
       if (!item.getItemMeta().hasDisplayName()) {
         logger.debug(" itemMeta hasn't displayName.");
         return false;
       }
       logger.trace(
           " !item.getItemMeta().getDisplayName().matches(\"StorageSign\"): " + !item.getItemMeta()
-              .getDisplayName().matches("StorageSign"));
-      if (!item.getItemMeta().getDisplayName().matches("StorageSign")) {
+              .getDisplayName().matches(storage_sign_name));
+      if (!item.getItemMeta().getDisplayName().matches(storage_sign_name)) {
         logger.debug(" itemMetaName hasn't StorageSign.");
         return false;
       }
@@ -976,11 +838,14 @@ public class StorageSign {
     return false;
   }
 
+  /**
+   * 渡されたBlockがStorageSignか判断.
+   */
   public static boolean isStorageSign(Block block, Logger logger) {
     logger.debug(" isStorageSign(Block):Start");
 
-    boolean isSignPost = isSignPost(block.getType(), logger);
-    boolean isWallSign =  isWallSign(block.getType(), logger);
+    boolean isSignPost = SignDefinition.sign_materials.contains(block.getType());
+    boolean isWallSign = SignDefinition.wall_sign_materials.contains(block.getType());
     logger.trace(" block.getType(): " + block.getType());
     logger.trace(" isSignPost(block.getType()): " + isSignPost);
     logger.trace(" isWallSign(block.getType()) :" + isWallSign);
@@ -989,8 +854,8 @@ public class StorageSign {
       Sign sign = (Sign) block.getState();
 
       logger.trace(" sign.getSide(Side.FRONT).getLine(0).matches(\"StorageSign\"): " + sign.getSide(
-          Side.FRONT).getLine(0).matches("StorageSign"));
-      if (sign.getSide(Side.FRONT).getLine(0).matches("StorageSign")) {
+          Side.FRONT).getLine(0).matches(storage_sign_name));
+      if (sign.getSide(Side.FRONT).getLine(0).matches(storage_sign_name)) {
         logger.debug(" This Sign is StorageSign.");
         return true;
       }
@@ -999,65 +864,4 @@ public class StorageSign {
     logger.debug(" This Block isn't StorageSign.");
     return false;
   }
-
-  public static boolean isSignPost(Block block, Logger logger) {
-    logger.debug("  isSignPost(Block)");
-    Material mat = block.getType();
-    return isSignPost(mat, logger);
-  }
-
-  public static boolean isWallSign(Block block, Logger logger) {
-    Material mat = block.getType();
-    return isWallSign(mat, logger);
-  }
-
-  //看板も8種類になったし、mat版おいとく
-  public static boolean isSignPost(Material mat, Logger logger) {
-    logger.debug("  isSignPost(Material): Start");
-
-    logger.trace("  mat: " + mat);
-    switch (mat) {
-      case OAK_SIGN:
-      case BIRCH_SIGN:
-      case SPRUCE_SIGN:
-      case JUNGLE_SIGN:
-      case ACACIA_SIGN:
-      case DARK_OAK_SIGN:
-      case CRIMSON_SIGN:
-      case WARPED_SIGN:
-      case MANGROVE_SIGN:
-      case CHERRY_SIGN:
-      case BAMBOO_SIGN:
-        logger.debug("  this Material is Sign.");
-        return true;
-      default:
-    }
-    logger.debug("  this Material isn't Sign.");
-    return false;
-  }
-
-  public static boolean isWallSign(Material mat, Logger logger) {
-    logger.debug("  isWallSign(Material): Start");
-
-    logger.trace("  mat: " + mat);
-    switch (mat) {
-      case OAK_WALL_SIGN:
-      case BIRCH_WALL_SIGN:
-      case SPRUCE_WALL_SIGN:
-      case JUNGLE_WALL_SIGN:
-      case ACACIA_WALL_SIGN:
-      case DARK_OAK_WALL_SIGN:
-      case CRIMSON_WALL_SIGN:
-      case WARPED_WALL_SIGN:
-      case MANGROVE_WALL_SIGN:
-      case CHERRY_WALL_SIGN:
-      case BAMBOO_WALL_SIGN:
-        logger.debug("  this Material is WallSign.");
-        return true;
-      default:
-    }
-    logger.debug("  this Material isn't WallSign.");
-    return false;
-  }
-
 }
