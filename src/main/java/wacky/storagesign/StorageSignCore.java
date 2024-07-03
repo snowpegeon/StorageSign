@@ -53,6 +53,7 @@ import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.OminousBottleMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionType;
@@ -264,6 +265,10 @@ public class StorageSignCore extends JavaPlugin implements Listener {
           PotionType pot = potionMeta.getBasePotionType();
           storageSign.setDamage(Short.parseShort(PotionInfo.getPotionTypeCode(pot)));
           storageSign.setPotion(pot);
+        } else if (mat == Material.OMINOUS_BOTTLE) {
+          logger.debug("main hand has OMINOUS_BOTTLE.");
+          storageSign.setMaterial(mat);
+          storageSign.setDamage(OmniousBottleInfo.GetAmplifierWithMeta(itemMainHand.getItemMeta()));
         } else if (mat == Material.ENCHANTED_BOOK) {
           logger.debug("main hand has EnchantedBook.");
           EnchantmentStorageMeta enchantMeta = (EnchantmentStorageMeta) itemMainHand.getItemMeta();
