@@ -1,5 +1,9 @@
 package wacky.storagesign;
 
+
+import static java.util.Map.entry;
+
+import com.github.teruteru128.logger.Logger;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
@@ -7,7 +11,6 @@ import java.util.Set;
 import org.bukkit.Material;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.NumberConversions;
-import com.github.teruteru128.logger.Logger;
 import wacky.storagesign.Exception.PotionException;
 
 import static org.bukkit.potion.PotionType.*;
@@ -52,6 +55,7 @@ public class PotionInfo {
           OLD_REGEN_TYPE_NAME, SHORT_NAME_REGEN,
           WATER_BREATHING.toString(), SHORT_NAME_BREAT
   );
+
   protected Material mat;
   protected PotionType pot;
   protected short damage = 0;
