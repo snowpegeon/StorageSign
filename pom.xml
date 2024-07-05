@@ -44,6 +44,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
+                            <!-- プロジェクト直下にproject.propertiesを置いて、RESOURCE-PATH=パス　で出力先のプラグインフォルダーを指定 -->
                             <outputDirectory>${RESOURCE-PATH}</outputDirectory>
                             <resources>
                                 <resource>
