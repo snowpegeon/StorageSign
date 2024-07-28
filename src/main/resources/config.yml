@@ -14,4 +14,4 @@ divide-limit: 345600
 max-stack-size: 16
 sneak-divide-limit: 34560
 no-bud: false
-falling-block-itemSS: false
+falling-block-itemSS: true
