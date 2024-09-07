@@ -673,6 +673,15 @@ public class StorageSign {
             "cSign.isEmpty() == isign.isEmpty(): " + (contentSign.isEmpty() == itemSign.isEmpty()));
         return contentSign.isEmpty() == itemSign.isEmpty();
       }
+    } else if(contents.getType().equals(FIREWORK_ROCKET) && item.getType().equals(FIREWORK_ROCKET)) {
+      FireworkMeta itemMeta = (FireworkMeta)item.getItemMeta();
+
+      if(itemMeta.hasEffects()) return false;
+      int contPower = ((FireworkMeta)contents.getItemMeta()).getPower();
+      int itemPower = itemMeta.getPower();
+      contPower = contPower == 0 ? 1 : contPower;
+      itemPower = itemPower == 0 ? 1 : itemPower;
+      return  contPower == itemPower;
     }
 
     // それ以外のItemはisSimilarで判定
