@@ -10,6 +10,7 @@ import static org.bukkit.Material.DARK_OAK_SIGN;
 import static org.bukkit.Material.JUNGLE_SIGN;
 import static org.bukkit.Material.MANGROVE_SIGN;
 import static org.bukkit.Material.OAK_SIGN;
+import static org.bukkit.Material.PALE_OAK_SIGN;
 import static org.bukkit.Material.SPRUCE_SIGN;
 import static org.bukkit.Material.WARPED_SIGN;
 
@@ -33,7 +34,8 @@ public enum SignMatStringDefinition {
   WARPED_SS("WarpedStorageSign", WARPED_SIGN),
   MANGROVE_SS("MangroveStorageSign", MANGROVE_SIGN),
   CHERRY_SS("CherryStorageSign", CHERRY_SIGN),
-  BAMBOO_SS("BambooStorageSign", BAMBOO_SIGN);
+  BAMBOO_SS("BambooStorageSign", BAMBOO_SIGN),
+  PALEOAK_SS("PaleOakStorageSign", PALE_OAK_SIGN);
 
   private String materialString;
   private Material material;
