@@ -4,9 +4,11 @@ import com.github.teruteru128.logger.Logger;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
 import org.apache.logging.log4j.LogManager;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.GameMode;
@@ -63,9 +65,11 @@ public class StorageSignCore extends JavaPlugin implements Listener {
 
   private static final org.apache.logging.log4j.Logger log = LogManager.getLogger(
       StorageSignCore.class);
-  static BannerMeta ominousBannerMeta;
+  public static BannerMeta ominousBannerMeta;
   public Logger logger;
   private boolean _fallingBlockSS;
+
+  private static final String ominousBannerComponent = "minecraft:white_banner[minecraft:item_name='{\"color\":\"gold\",\"translate\":\"block.minecraft.ominous_banner\"}',minecraft:hide_additional_tooltip={},minecraft:banner_patterns=[{color: \"cyan\", pattern: \"minecraft:rhombus\"}, {color: \"light_gray\", pattern: \"minecraft:stripe_bottom\"}, {color: \"gray\", pattern: \"minecraft:stripe_center\"}, {color: \"light_gray\", pattern: \"minecraft:border\"}, {color: \"black\", pattern: \"minecraft:stripe_middle\"}, {color: \"light_gray\", pattern: \"minecraft:half_horizontal\"}, {color: \"light_gray\", pattern: \"minecraft:circle\"}, {color: \"black\", pattern: \"minecraft:border\"}]]";
 
   @Override
   public void onEnable() {
@@ -118,6 +122,9 @@ public class StorageSignCore extends JavaPlugin implements Listener {
 			new SignPhysicsEvent(this, logger);
 		}
     _fallingBlockSS = ConfigLoader.getFallingBlockItemSs();
+
+    ItemStack stack = Bukkit.getItemFactory().createItemStack(ominousBannerComponent);
+    ominousBannerMeta = (BannerMeta) stack.getItemMeta();
 
     logger.debug("★onEnable:End");
   }
