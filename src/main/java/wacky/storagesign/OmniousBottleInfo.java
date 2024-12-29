@@ -31,7 +31,11 @@ public class OmniousBottleInfo {
 
   public static ItemStack GetItemStack(Material mat, int amount, short damage){
     ItemStack item = new ItemStack(mat);
-    item.setAmount(Math.min(amount, item.getMaxStackSize()));
+    int amt = Math.min(amount, item.getMaxStackSize());
+    // Paperでamtに0を入れるとなぜかアイテムスタックが消えてしまうため、0の場合は設定しない
+    if(amt != 0) {
+      item.setAmount(amt);
+    }
     OminousBottleMeta ominousMeta = (OminousBottleMeta) item.getItemMeta();
     Objects.requireNonNull(ominousMeta).setAmplifier(damage);
     item.setItemMeta(ominousMeta);
