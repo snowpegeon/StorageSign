@@ -31,12 +31,8 @@ public class OmniousBottleInfo {
 
   public static ItemStack GetItemStack(Material mat, int amount, short damage){
     ItemStack item = new ItemStack(mat);
-    int amt = Math.min(amount, 1);
-    /* 
-     * NOTE:
-     * Paperでamtに0を入れるとなぜかアイテムスタックが消えてしまうため、
-     * 0の場合は設定しない。
-     */
+    int amt = Math.min(amount, item.getMaxStackSize());
+    // Paperでamtに0を入れるとなぜかアイテムスタックが消えてしまうため、0の場合は設定しない
     if(amt != 0) {
       item.setAmount(amt);
     }
