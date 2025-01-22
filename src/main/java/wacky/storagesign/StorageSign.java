@@ -710,6 +710,13 @@ public class StorageSign {
       // block_entity_data_Materialsに入ってるものは、isSimilarで比較できないので、Materialが一緒かで判定
       logger.debug(" This mat is block_entity_data_Materials.");
       return this.mat.equals(item.getType());
+    } else if(this.mat == Material.FIREWORK_ROCKET && item.getType() == FIREWORK_ROCKET) {
+      FireworkMeta fireworkMeta = (FireworkMeta) item.getItemMeta();
+      int pow = fireworkMeta.getPower();
+      if (pow == 0) {
+        pow = 1;
+      }
+      return this.damage == pow;
     }
 
     // SSなのかだけ、別ロジックで判定

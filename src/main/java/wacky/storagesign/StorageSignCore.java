@@ -289,7 +289,11 @@ public class StorageSignCore extends JavaPlugin implements Listener {
           logger.debug("main hand has FireRocket.");
           storageSign.setMaterial(mat);
           FireworkMeta fireworkMeta = (FireworkMeta) itemMainHand.getItemMeta();
-          storageSign.setDamage((short) fireworkMeta.getPower());
+          int pow = fireworkMeta.getPower();
+          if (pow == 0) {
+            pow = 1;
+          }
+          storageSign.setDamage((short) pow);
         } else if (mat == Material.WHITE_BANNER) {
           logger.debug("main hand has WhiteBanner.");
           storageSign.setMaterial(mat);
