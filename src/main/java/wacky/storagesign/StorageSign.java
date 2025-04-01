@@ -51,6 +51,9 @@ import wacky.storagesign.signdefinition.SignMatStringDefinition;
  * StrageSignの実体クラスです.
  */
 public class StorageSign {
+  
+  /** ItemStackのデフォルト個数 */
+  private static final int DEFAULT_ITEM_AMOUNT = 1;
 
   private static final String storage_sign_name = "StorageSign";
 
@@ -564,14 +567,14 @@ public class StorageSign {
     if (this.mat == STONE_SLAB) {
       logger.debug("STONE_SLAB");
       // ダメージ値0にする
-      return new ItemStack(this.mat, 1);
+      return new ItemStack(this.mat, DEFAULT_ITEM_AMOUNT);
 
     } else if (SignDefinition.sign_materials.contains(this.mat)) {
       logger.debug("any SIGN");
 
       if (this.damage == 0) {
         logger.debug("damage is 0");
-        return new ItemStack(this.mat, 1);
+        return new ItemStack(this.mat, DEFAULT_ITEM_AMOUNT);
 
       } else {
         logger.debug("damage isn't 0");
@@ -583,12 +586,12 @@ public class StorageSign {
       logger.trace("this.mat: " + this.mat);
       logger.trace("this.damage: " + this.damage);
       logger.trace("this.amount: " + this.amount);
-      ItemStack item = OmniousBottleInfo.GetItemStack(this.mat, this.amount, this.damage);
+      ItemStack item = OmniousBottleInfo.GetItemStack(this.mat, DEFAULT_ITEM_AMOUNT, this.damage);
       logger.trace("tagData: " + item);
       return item;
     } else if (this.mat == ENCHANTED_BOOK) {
       logger.debug("ENCHANTED_BOOK");
-      ItemStack item = new ItemStack(this.mat, 1);
+      ItemStack item = new ItemStack(this.mat, DEFAULT_ITEM_AMOUNT);
 
       EnchantmentStorageMeta enchantMeta = (EnchantmentStorageMeta) item.getItemMeta();
       Objects.requireNonNull(enchantMeta).addStoredEnchant(this.ench, this.damage, true);
@@ -599,7 +602,7 @@ public class StorageSign {
     } else if (potion_materials.contains(this.mat)) {
       logger.debug("any POTION");
 
-      ItemStack item = new ItemStack(this.mat, 1);
+      ItemStack item = new ItemStack(this.mat, DEFAULT_ITEM_AMOUNT);
       PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
       Objects.requireNonNull(potionMeta).setBasePotionType(this.pot);
       item.setItemMeta(potionMeta);
@@ -608,7 +611,7 @@ public class StorageSign {
 
     } else if (this.mat == FIREWORK_ROCKET) {
       logger.debug("FIREWORK_ROCKET");
-      ItemStack item = new ItemStack(this.mat, 1);
+      ItemStack item = new ItemStack(this.mat, DEFAULT_ITEM_AMOUNT);
       FireworkMeta fireworkMeta = (FireworkMeta) item.getItemMeta();
       Objects.requireNonNull(fireworkMeta).setPower(this.damage);
       item.setItemMeta(fireworkMeta);
@@ -618,7 +621,7 @@ public class StorageSign {
     } else if (this.mat == WHITE_BANNER && this.damage == 8) {
       logger.debug("WHITE_BANNER & damage is 8");
 
-      ItemStack item = new ItemStack(this.mat, 1);
+      ItemStack item = new ItemStack(this.mat, DEFAULT_ITEM_AMOUNT);
       // どこかからコピー
       item.setItemMeta(StorageSignCore.ominousBannerMeta);
 
@@ -629,10 +632,10 @@ public class StorageSign {
     if (this.damage == 0) {
       logger.debug("damage is 0");
       // 大半はダメージなくなった
-      return new ItemStack(this.mat, 1);
+      return new ItemStack(this.mat, DEFAULT_ITEM_AMOUNT);
     }
 
-    var itemStack = new ItemStack(this.mat, 1);
+    var itemStack = new ItemStack(this.mat, DEFAULT_ITEM_AMOUNT);
     var meta = itemStack.getItemMeta();
     if (meta instanceof Damageable dam) {
       logger.debug("meta instanceof Damageable dam");
