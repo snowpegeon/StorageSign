@@ -69,7 +69,7 @@ public class StorageSignCore extends JavaPlugin implements Listener {
   public Logger logger;
   private boolean _fallingBlockSS;
 
-  private static final String ominousBannerComponent = "minecraft:white_banner[minecraft:item_name='{\"color\":\"gold\",\"translate\":\"block.minecraft.ominous_banner\"}',minecraft:hide_additional_tooltip={},minecraft:banner_patterns=[{color: \"cyan\", pattern: \"minecraft:rhombus\"}, {color: \"light_gray\", pattern: \"minecraft:stripe_bottom\"}, {color: \"gray\", pattern: \"minecraft:stripe_center\"}, {color: \"light_gray\", pattern: \"minecraft:border\"}, {color: \"black\", pattern: \"minecraft:stripe_middle\"}, {color: \"light_gray\", pattern: \"minecraft:half_horizontal\"}, {color: \"light_gray\", pattern: \"minecraft:circle\"}, {color: \"black\", pattern: \"minecraft:border\"}]]";
+  private static final String ominousBannerComponent = "minecraft:white_banner[minecraft:banner_patterns=[{color:\"cyan\",pattern:\"minecraft:rhombus\"},{color:\"light_gray\",pattern:\"minecraft:stripe_bottom\"},{color:\"gray\",pattern:\"minecraft:stripe_center\"},{color:\"light_gray\",pattern:\"minecraft:border\"},{color:\"black\",pattern:\"minecraft:stripe_middle\"},{color:\"light_gray\",pattern:\"minecraft:half_horizontal\"},{color:\"light_gray\",pattern:\"minecraft:circle\"},{color:\"black\",pattern:\"minecraft:border\"}],minecraft:item_name={translate:\"block.minecraft.ominous_banner\"},minecraft:rarity=\"uncommon\",minecraft:tooltip_display={hidden_components:[\"minecraft:banner_patterns\"]}]";
 
   @Override
   public void onEnable() {
@@ -123,8 +123,11 @@ public class StorageSignCore extends JavaPlugin implements Listener {
 		}
     _fallingBlockSS = ConfigLoader.getFallingBlockItemSs();
 
-    ItemStack stack = Bukkit.getItemFactory().createItemStack(ominousBannerComponent);
-    ominousBannerMeta = (BannerMeta) stack.getItemMeta();
+    // バナーデバッグが入ってる場合は、アイテムスタックを設定しない
+    if(!ConfigLoader.getBannerDebug()) {
+      ItemStack stack = Bukkit.getItemFactory().createItemStack(ominousBannerComponent);
+      ominousBannerMeta = (BannerMeta) stack.getItemMeta();
+    }
 
     logger.debug("★onEnable:End");
   }
@@ -157,6 +160,12 @@ public class StorageSignCore extends JavaPlugin implements Listener {
     logger.debug("★onPlayerInteract: Start");
     Player player = event.getPlayer();
     Block block;
+
+    // デバッグオプション入ってる場合は、バナーのItemMetaを取得する
+    if(ConfigLoader.getBannerDebug()){
+      ItemStack banItem = event.getItem();
+      logger.trace("bannerMeta:" + banItem.getItemMeta().getAsString());
+    }
 
     logger.trace("event.useInteractedBlock() == Result.DENY :" + (event.useInteractedBlock()
         == Result.DENY));
