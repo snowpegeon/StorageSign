@@ -59,6 +59,8 @@ import org.bukkit.inventory.meta.OminousBottleMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionType;
+import wacky.storagesign.client.paper.PaperSSEvent;
+import wacky.storagesign.client.spigot.SpigotSSEvent;
 import wacky.storagesign.signdefinition.SignDefinition;
 
 public class StorageSignCore extends JavaPlugin implements Listener {
@@ -114,7 +116,23 @@ public class StorageSignCore extends JavaPlugin implements Listener {
     }
 
     logger.trace("setEvent");
+    boolean isPaper = false;
+    try {
+      Class.forName("io.papermc.paper.event.player.PlayerOpenSignEvent");
+      isPaper = true;
+      logger.info("ServerType:Paper");
+    } catch (ClassNotFoundException e) {
+      // Spigotの場合確定で起きるので、無視する
+      logger.info("ServerType:Spigot");
+    }
     getServer().getPluginManager().registerEvents(this, this);
+
+    // Paper専用ハンドラの設定
+    if(isPaper) {
+      getServer().getPluginManager().registerEvents(new PaperSSEvent(), this);
+    } else {
+      getServer().getPluginManager().registerEvents(new SpigotSSEvent(), this);
+    }
 
     logger.trace("no-bud:" + ConfigLoader.getNoBud());
 		if (ConfigLoader.getNoBud()) {
@@ -621,28 +639,6 @@ public class StorageSignCore extends JavaPlugin implements Listener {
     player.closeInventory();
     logger.debug("★onBlockPlace: End");
   }
-
-  @EventHandler
-  public void onPlayerSignOpen(PlayerSignOpenEvent event){
-    logger.debug("★onPlayerSignOpen:Start");
-
-    logger.trace("event.isCancelled(): " + event.isCancelled());
-    if (event.isCancelled()) {
-      logger.debug("★this Event is Cancelled!");
-      return;
-    }
-
-    Block block = event.getSign().getBlock();
-    boolean isStorageSign = StorageSign.isStorageSign(block, logger);
-    logger.trace("isStorageSign: " + isStorageSign);
-    if (isStorageSign) {
-      logger.debug("StorageSignEdit Cancel.");
-      event.setCancelled(true);
-    }
-
-    logger.debug("★onPlayerSignOpen:End");
-  }
-
 
   @EventHandler
   public void onItemMove(InventoryMoveItemEvent event) {
