@@ -141,4 +141,13 @@ public class ConfigLoader {
   public static boolean getFallingBlockItemSs() {
     return fileConfig.getBoolean("falling-block-itemSS");
   }
+
+  /**
+   * banner-debugの値を取得する.
+   *
+   * @return boolean
+   */
+  public static boolean getBannerDebug() {
+    return fileConfig.getBoolean("banner-debug");
+  }
 }

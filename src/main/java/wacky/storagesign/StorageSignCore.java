@@ -59,6 +59,8 @@ import org.bukkit.inventory.meta.OminousBottleMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionType;
+import wacky.storagesign.client.paper.PaperSSEvent;
+import wacky.storagesign.client.spigot.SpigotSSEvent;
 import wacky.storagesign.signdefinition.SignDefinition;
 
 public class StorageSignCore extends JavaPlugin implements Listener {
@@ -69,7 +71,7 @@ public class StorageSignCore extends JavaPlugin implements Listener {
   public Logger logger;
   private boolean _fallingBlockSS;
 
-  private static final String ominousBannerComponent = "minecraft:white_banner[minecraft:item_name='{\"color\":\"gold\",\"translate\":\"block.minecraft.ominous_banner\"}',minecraft:hide_additional_tooltip={},minecraft:banner_patterns=[{color: \"cyan\", pattern: \"minecraft:rhombus\"}, {color: \"light_gray\", pattern: \"minecraft:stripe_bottom\"}, {color: \"gray\", pattern: \"minecraft:stripe_center\"}, {color: \"light_gray\", pattern: \"minecraft:border\"}, {color: \"black\", pattern: \"minecraft:stripe_middle\"}, {color: \"light_gray\", pattern: \"minecraft:half_horizontal\"}, {color: \"light_gray\", pattern: \"minecraft:circle\"}, {color: \"black\", pattern: \"minecraft:border\"}]]";
+  private static final String ominousBannerComponent = "minecraft:white_banner[minecraft:banner_patterns=[{color:\"cyan\",pattern:\"minecraft:rhombus\"},{color:\"light_gray\",pattern:\"minecraft:stripe_bottom\"},{color:\"gray\",pattern:\"minecraft:stripe_center\"},{color:\"light_gray\",pattern:\"minecraft:border\"},{color:\"black\",pattern:\"minecraft:stripe_middle\"},{color:\"light_gray\",pattern:\"minecraft:half_horizontal\"},{color:\"light_gray\",pattern:\"minecraft:circle\"},{color:\"black\",pattern:\"minecraft:border\"}],minecraft:item_name={translate:\"block.minecraft.ominous_banner\"},minecraft:rarity=\"uncommon\",minecraft:tooltip_display={hidden_components:[\"minecraft:banner_patterns\"]}]";
 
   @Override
   public void onEnable() {
@@ -114,7 +116,23 @@ public class StorageSignCore extends JavaPlugin implements Listener {
     }
 
     logger.trace("setEvent");
+    boolean isPaper = false;
+    try {
+      Class.forName("io.papermc.paper.event.player.PlayerOpenSignEvent");
+      isPaper = true;
+      logger.info("ServerType:Paper");
+    } catch (ClassNotFoundException e) {
+      // Spigotの場合確定で起きるので、無視する
+      logger.info("ServerType:Spigot");
+    }
     getServer().getPluginManager().registerEvents(this, this);
+
+    // Paper専用ハンドラの設定
+    if(isPaper) {
+      getServer().getPluginManager().registerEvents(new PaperSSEvent(), this);
+    } else {
+      getServer().getPluginManager().registerEvents(new SpigotSSEvent(), this);
+    }
 
     logger.trace("no-bud:" + ConfigLoader.getNoBud());
 		if (ConfigLoader.getNoBud()) {
@@ -123,8 +141,11 @@ public class StorageSignCore extends JavaPlugin implements Listener {
 		}
     _fallingBlockSS = ConfigLoader.getFallingBlockItemSs();
 
-    ItemStack stack = Bukkit.getItemFactory().createItemStack(ominousBannerComponent);
-    ominousBannerMeta = (BannerMeta) stack.getItemMeta();
+    // バナーデバッグが入ってる場合は、アイテムスタックを設定しない
+    if(!ConfigLoader.getBannerDebug()) {
+      ItemStack stack = Bukkit.getItemFactory().createItemStack(ominousBannerComponent);
+      ominousBannerMeta = (BannerMeta) stack.getItemMeta();
+    }
 
     logger.debug("★onEnable:End");
   }
@@ -157,6 +178,12 @@ public class StorageSignCore extends JavaPlugin implements Listener {
     logger.debug("★onPlayerInteract: Start");
     Player player = event.getPlayer();
     Block block;
+
+    // デバッグオプション入ってる場合は、バナーのItemMetaを取得する
+    if(ConfigLoader.getBannerDebug()){
+      ItemStack banItem = event.getItem();
+      logger.trace("bannerMeta:" + banItem.getItemMeta().getAsString());
+    }
 
     logger.trace("event.useInteractedBlock() == Result.DENY :" + (event.useInteractedBlock()
         == Result.DENY));
@@ -612,28 +639,6 @@ public class StorageSignCore extends JavaPlugin implements Listener {
     player.closeInventory();
     logger.debug("★onBlockPlace: End");
   }
-
-  @EventHandler
-  public void onPlayerSignOpen(PlayerSignOpenEvent event){
-    logger.debug("★onPlayerSignOpen:Start");
-
-    logger.trace("event.isCancelled(): " + event.isCancelled());
-    if (event.isCancelled()) {
-      logger.debug("★this Event is Cancelled!");
-      return;
-    }
-
-    Block block = event.getSign().getBlock();
-    boolean isStorageSign = StorageSign.isStorageSign(block, logger);
-    logger.trace("isStorageSign: " + isStorageSign);
-    if (isStorageSign) {
-      logger.debug("StorageSignEdit Cancel.");
-      event.setCancelled(true);
-    }
-
-    logger.debug("★onPlayerSignOpen:End");
-  }
-
 
   @EventHandler
   public void onItemMove(InventoryMoveItemEvent event) {

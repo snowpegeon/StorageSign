@@ -2,13 +2,17 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>wacky</groupId>
     <artifactId>StorageSign</artifactId>
-    <version>1.7.0</version>
+    <version>1.7.1</version>
     <packaging>jar</packaging>
     <name>StorageSign</name>
     <repositories>
         <repository>
             <id>spigotmc</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots</url>
+        </repository>
+        <repository>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
     </repositories>
     <build>
@@ -92,7 +96,13 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.21.4-R0.1-SNAPSHOT</version>
+            <version>1.21.5-R0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.21.5-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
