@@ -57,6 +57,7 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.OminousBottleMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.inventory.recipe.CraftingBookCategory;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionType;
 import wacky.storagesign.client.paper.PaperSSEvent;
@@ -111,6 +112,11 @@ public class StorageSignCore extends JavaPlugin implements Listener {
 			} else {
 				storageSignRecipe.setIngredient('H', Material.CHEST);
 			}
+
+      // レシピのグループを設定する
+      storageSignRecipe.setCategory(CraftingBookCategory.MISC);
+      storageSignRecipe.setGroup("StorageSign");
+
       getServer().addRecipe(storageSignRecipe);
       logger.trace(mat + "StorageSign Recipe added.");
     }
