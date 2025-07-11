@@ -33,10 +33,12 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.Sign;
 import org.bukkit.block.sign.Side;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
@@ -44,6 +46,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.NumberConversions;
+import wacky.storagesign.signdefinition.ShulkerDefinition;
 import wacky.storagesign.signdefinition.SignDefinition;
 import wacky.storagesign.signdefinition.SignMatStringDefinition;
 
@@ -726,7 +729,15 @@ public class StorageSign {
             "cSign.isEmpty() == isign.isEmpty(): " + (contentSign.isEmpty() == itemSign.isEmpty()));
         return contentSign.isEmpty() == itemSign.isEmpty();
       }
-    }
+    } else if (this.mat == item.getType() && ShulkerDefinition.shulker_materials.contains(this.mat)) {
+      // シュルカーボックスの場合は、中身を確認する
+      BlockStateMeta meta = (BlockStateMeta) item.getItemMeta();
+      ShulkerBox shulker = (ShulkerBox) meta.getBlockState();
+      if(shulker.getInventory().isEmpty()){
+        // 中身が空なら、ItemStackをリセット
+        item = new ItemStack(item.getType());
+      }
+   }
 
     // それ以外のItemはisSimilarで判定
     boolean isSimilar = contents.isSimilar(item);
