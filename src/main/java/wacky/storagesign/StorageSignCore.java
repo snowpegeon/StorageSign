@@ -3,6 +3,7 @@ package wacky.storagesign;
 import com.github.teruteru128.logger.Logger;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -62,6 +63,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionType;
 import wacky.storagesign.client.paper.PaperSSEvent;
 import wacky.storagesign.client.spigot.SpigotSSEvent;
+import wacky.storagesign.config.StorageSignNBTConfig;
 import wacky.storagesign.signdefinition.SignDefinition;
 
 public class StorageSignCore extends JavaPlugin implements Listener {
@@ -71,8 +73,6 @@ public class StorageSignCore extends JavaPlugin implements Listener {
   public static BannerMeta ominousBannerMeta;
   public Logger logger;
   private boolean _fallingBlockSS;
-
-  private static final String ominousBannerComponent = "minecraft:white_banner[minecraft:banner_patterns=[{color:\"cyan\",pattern:\"minecraft:rhombus\"},{color:\"light_gray\",pattern:\"minecraft:stripe_bottom\"},{color:\"gray\",pattern:\"minecraft:stripe_center\"},{color:\"light_gray\",pattern:\"minecraft:border\"},{color:\"black\",pattern:\"minecraft:stripe_middle\"},{color:\"light_gray\",pattern:\"minecraft:half_horizontal\"},{color:\"light_gray\",pattern:\"minecraft:circle\"},{color:\"black\",pattern:\"minecraft:border\"}],minecraft:item_name={translate:\"block.minecraft.ominous_banner\"},minecraft:rarity=\"uncommon\",minecraft:tooltip_display={hidden_components:[\"minecraft:banner_patterns\"]}]";
 
   @Override
   public void onEnable() {
@@ -147,9 +147,16 @@ public class StorageSignCore extends JavaPlugin implements Listener {
 		}
     _fallingBlockSS = ConfigLoader.getFallingBlockItemSs();
 
+    // storageSignNBT.configのセットアップ
+    StorageSignNBTConfig ssConfigClass = new StorageSignNBTConfig(this);
+    ssConfigClass.init();
+
+    String version = Bukkit.getBukkitVersion().split("-")[0];
+    String nbt = ssConfigClass.getOminousBannerNBT(version);
+
     // バナーデバッグが入ってる場合は、アイテムスタックを設定しない
     if(!ConfigLoader.getBannerDebug()) {
-      ItemStack stack = Bukkit.getItemFactory().createItemStack(ominousBannerComponent);
+      ItemStack stack = Bukkit.getItemFactory().createItemStack(nbt);
       ominousBannerMeta = (BannerMeta) stack.getItemMeta();
     }
 
