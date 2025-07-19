@@ -135,9 +135,13 @@ public class StorageSignCore extends JavaPlugin implements Listener {
 
     // Paper専用ハンドラの設定
     if(isPaper) {
-      getServer().getPluginManager().registerEvents(new PaperSSEvent(), this);
+      PaperSSEvent event = new PaperSSEvent();
+      event.init(logger);
+      getServer().getPluginManager().registerEvents(event, this);
     } else {
-      getServer().getPluginManager().registerEvents(new SpigotSSEvent(), this);
+      SpigotSSEvent event = new SpigotSSEvent();
+      event.init(logger);
+      getServer().getPluginManager().registerEvents(event, this);
     }
 
     logger.trace("no-bud:" + ConfigLoader.getNoBud());
