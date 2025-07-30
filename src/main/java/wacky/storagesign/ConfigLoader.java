@@ -67,7 +67,7 @@ public class ConfigLoader {
    * @return boolean
    */
   public static boolean getAutoImport() {
-    return fileConfig.getBoolean("auto-export");
+    return fileConfig.getBoolean("auto-import");
   }
 
   /**
