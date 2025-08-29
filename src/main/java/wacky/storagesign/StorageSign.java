@@ -616,7 +616,10 @@ public class StorageSign {
       logger.debug("FIREWORK_ROCKET");
       ItemStack item = new ItemStack(this.mat, DEFAULT_ITEM_AMOUNT);
       FireworkMeta fireworkMeta = (FireworkMeta) item.getItemMeta();
-      Objects.requireNonNull(fireworkMeta).setPower(this.damage);
+      // 21.4より飛翔1はダメージ設定要らなくなった
+      if(1 < this.damage) {
+        Objects.requireNonNull(fireworkMeta).setPower(this.damage);
+      }
       item.setItemMeta(fireworkMeta);
 
       return item;
