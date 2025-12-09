@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>wacky</groupId>
     <artifactId>StorageSign</artifactId>
-    <version>1.8.3</version>
+    <version>2.0.0</version>
     <packaging>jar</packaging>
     <name>StorageSign</name>
     <repositories>
@@ -96,12 +96,12 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.21.5-R0.1-SNAPSHOT</version>
+            <version>1.21.4-R0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.21.5-R0.1-SNAPSHOT</version>
+            <version>1.21.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

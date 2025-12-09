@@ -87,6 +87,10 @@ public class StorageSign {
   );
   private static final org.apache.logging.log4j.Logger log = LogManager.getLogger(
       StorageSign.class);
+  /**
+   * 看板自体の種類.
+   */
+  protected Sign sign;
 
   /**
    * 看板のアイテム素材.
@@ -199,6 +203,7 @@ public class StorageSign {
     String[] line2 = sign.getSide(Side.FRONT).getLine(1).trim().split(":");
     this.mat = getMaterial(line2[0]);
     this.isEmpty = (this.mat == null || this.mat == AIR);
+    this.sign = sign;
 
     if (this.mat == OMINOUS_BOTTLE) {
       logger.debug("OMINOUS_BOTTLE");
@@ -247,6 +252,15 @@ public class StorageSign {
     }
 
     logger.debug("StorageSign(Material signmat):end");
+  }
+
+  /**
+   * 基底となるSign情報を取得.
+   *
+   * @return Sign 作製元のSign.
+   */
+  public Sign getBaseSign(){
+    return this.sign;
   }
 
   /**
