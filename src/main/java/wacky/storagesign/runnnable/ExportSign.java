@@ -17,44 +17,19 @@ import wacky.storagesign.StorageSign;
 
 public class ExportSign extends BukkitRunnable {
 
-
-  // 醸造台の搬入定義
-  private static final int SLOT_BREWING_BOTTLE_1 = 0;
-  private static final int SLOT_BREWING_BOTTLE_2 = 1;
-  private static final int SLOT_BREWING_BOTTLE_3 = 2;
-  private static final int SLOT_BREWING_INGREDIENT = 3;
-  private static final int SLOT_BREWING_FUEL = 4;
-
-  // 醸造台の上部スロットに入るアイテム群
-  private static final Set<Material> BREWING_INGREDIENTS = EnumSet.of(
-      Material.NETHER_WART, Material.SUGAR, Material.REDSTONE, Material.GLOWSTONE_DUST,
-      Material.GUNPOWDER, Material.RABBIT_FOOT, Material.GLISTERING_MELON_SLICE,
-      Material.GOLDEN_CARROT, Material.MAGMA_CREAM, Material.GHAST_TEAR,
-      Material.SPIDER_EYE, Material.FERMENTED_SPIDER_EYE, Material.DRAGON_BREATH,
-      Material.PUFFERFISH, Material.TURTLE_HELMET, Material.PHANTOM_MEMBRANE
-  );
-
-  // かまどのスロット定義
-  private static final int SLOT_FURNACE_INPUT = 0;
-  private static final int SLOT_FURNACE_FUEL = 1;
   private Logger _logger;
   private InventoryMoveItemEvent _event;
-  private StorageSign _ss;
-  private Sign _sign;
   private ItemStack _moveItem;
   private Inventory _inventory;
   private Inventory _destInventory;
   private Block _block;
 
-  public ExportSign(Sign sign, StorageSign storageSign, ItemStack moveItemStack, Inventory sourceInventory, Inventory destInventory, InventoryMoveItemEvent event, Block block, Logger logger){
+  public ExportSign(ItemStack moveItemStack, Inventory sourceInventory, Inventory destInventory, InventoryMoveItemEvent event, Block block, Logger logger){
     _logger = logger;
     _logger.debug("★exportSign:Start.");
     _logger.trace("moveItem: " + moveItemStack);
-    _logger.trace("storageSign.getAmount(): " + storageSign.getAmount());
     _logger.trace("moveItem.getAmount(): " + moveItemStack.getAmount());
     _logger.trace("sourceInventory.getLocation(): " + sourceInventory.getLocation());
-    _sign = sign;
-    _ss = storageSign;
     _moveItem = moveItemStack;
     _inventory = sourceInventory;
     _destInventory = destInventory;
@@ -68,16 +43,16 @@ public class ExportSign extends BukkitRunnable {
   @Override
   public void run() {
     _destInventory = _event.getSource();
-    _sign = (Sign) _block.getState();
-    _ss = new StorageSign(_sign, _block.getType(), _logger);;
+    Sign sign = (Sign) _block.getState();
+    StorageSign ss = new StorageSign(sign, _block.getType(), _logger);;
 
     _logger.debug("exportSign:Start.");
     _logger.trace("item: " + _moveItem);
     _logger.trace("!inv.containsAtLeast(item, item.getMaxStackSize(): " + !_inventory.containsAtLeast(_moveItem, _moveItem.getMaxStackSize()));
-    _logger.trace("storageSign.getAmount(): " + _ss.getAmount());
+    _logger.trace("storageSign.getAmount(): " + ss.getAmount());
     _logger.trace("item.getAmount(): " + _moveItem.getAmount());
     if (!_inventory.containsAtLeast(_moveItem, _moveItem.getMaxStackSize())
-        && _ss.getAmount() >= _moveItem.getAmount()) {
+        && ss.getAmount() >= _moveItem.getAmount()) {
       int stacks = 0;
       int amount = 0;
       ItemStack[] contents = _destInventory.getContents();
@@ -248,13 +223,13 @@ public class ExportSign extends BukkitRunnable {
       }
       cItem.setAmount(addAmount);
       _inventory.addItem(cItem);
-      _ss.addAmount(-cItem.getAmount());
+      ss.addAmount(-cItem.getAmount());
     }
     for (int i = 0; i < 4; i++) {
-      _logger.trace("set Line i:" + i + ". Text: " + _ss.getSigntext(i));
-      _sign.getSide(Side.FRONT).setLine(i, _ss.getSigntext(i));
+      _logger.trace("set Line i:" + i + ". Text: " + ss.getSigntext(i));
+      sign.getSide(Side.FRONT).setLine(i, ss.getSigntext(i));
     }
-    _sign.update();
+    sign.update();
     _logger.debug("ExportSign:End");
   }
 }
