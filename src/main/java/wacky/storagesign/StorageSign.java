@@ -49,6 +49,7 @@ import org.bukkit.util.NumberConversions;
 import wacky.storagesign.signdefinition.ShulkerDefinition;
 import wacky.storagesign.signdefinition.SignDefinition;
 import wacky.storagesign.signdefinition.SignMatStringDefinition;
+import wacky.storagesign.OmniousBottleInfo;
 
 /**
  * StrageSignの実体クラスです.
