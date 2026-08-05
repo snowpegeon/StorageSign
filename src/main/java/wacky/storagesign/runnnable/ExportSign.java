@@ -221,6 +221,9 @@ public class ExportSign extends BukkitRunnable {
       } else {
         addAmount = cItem.getMaxStackSize() * stacks - amount;
       }
+      _logger.debug("amount:" + amount);
+      _logger.debug("addAmount:" + addAmount);
+      _logger.debug("ss.getAmount:" + ss.getAmount());
       cItem.setAmount(addAmount);
       _inventory.addItem(cItem);
       ss.addAmount(-cItem.getAmount());

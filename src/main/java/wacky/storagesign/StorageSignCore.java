@@ -1,11 +1,17 @@
 package wacky.storagesign;
 
 import com.github.teruteru128.logger.Logger;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
+import net.kyori.adventure.text.Component;
 import org.apache.logging.log4j.LogManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -20,6 +26,8 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.Furnace;
 import org.bukkit.block.Sign;
+import org.bukkit.block.banner.Pattern;
+import org.bukkit.block.banner.PatternType;
 import org.bukkit.block.data.type.WallSign;
 import org.bukkit.block.sign.Side;
 import org.bukkit.command.CommandSender;
@@ -48,6 +56,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.ShapedRecipe;
@@ -59,6 +68,8 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.recipe.CraftingBookCategory;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionType;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 import wacky.storagesign.client.paper.PaperSSEvent;
 import wacky.storagesign.client.spigot.SpigotSSEvent;
 import wacky.storagesign.config.StorageSignNBTConfig;
@@ -155,12 +166,45 @@ public class StorageSignCore extends JavaPlugin implements Listener {
     ssConfigClass.init();
 
     String version = Bukkit.getBukkitVersion().split("-")[0];
+    version = version.replaceFirst("\\.build\\.\\d+$", "");
     String nbt = ssConfigClass.getOminousBannerNBT(version);
 
     // バナーデバッグが入ってる場合は、アイテムスタックを設定しない
     if(!ConfigLoader.getBannerDebug()) {
-      ItemStack stack = Bukkit.getItemFactory().createItemStack(nbt);
-      ominousBannerMeta = (BannerMeta) stack.getItemMeta();
+      ItemStack banner = new ItemStack(Material.WHITE_BANNER);
+
+      BannerMeta meta = (BannerMeta) banner.getItemMeta();
+
+      meta.itemName(Component.translatable("block.minecraft.ominous_banner"));
+
+      meta.setPatterns(List.of(
+          new Pattern(DyeColor.CYAN, PatternType.RHOMBUS),
+          new Pattern(DyeColor.LIGHT_GRAY, PatternType.STRIPE_BOTTOM),
+          new Pattern(DyeColor.GRAY, PatternType.STRIPE_CENTER),
+          new Pattern(DyeColor.LIGHT_GRAY, PatternType.BORDER),
+          new Pattern(DyeColor.BLACK, PatternType.STRIPE_MIDDLE),
+          new Pattern(DyeColor.LIGHT_GRAY, PatternType.HALF_HORIZONTAL),
+          new Pattern(DyeColor.LIGHT_GRAY, PatternType.CIRCLE),
+          new Pattern(DyeColor.BLACK, PatternType.BORDER)
+      ));
+
+      meta.setRarity(ItemRarity.UNCOMMON);
+
+      try {
+        byte[] data = Base64.getDecoder().decode(nbt);
+
+        BukkitObjectInputStream dataInput =
+            null;
+        dataInput = new BukkitObjectInputStream(new ByteArrayInputStream(data));
+        ItemStack item = (ItemStack) dataInput.readObject();
+        dataInput.close();
+        ominousBannerMeta = meta;
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      } catch (ClassNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+
     }
 
     logger.debug("★onEnable:End");
@@ -198,7 +242,20 @@ public class StorageSignCore extends JavaPlugin implements Listener {
     // デバッグオプション入ってる場合は、バナーのItemMetaを取得する
     if(ConfigLoader.getBannerDebug()){
       ItemStack banItem = event.getItem();
-      logger.trace("bannerMeta:" + banItem.getItemMeta().getAsString());
+
+      try {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        BukkitObjectOutputStream dataOutput =
+            new BukkitObjectOutputStream(outputStream);
+        dataOutput.writeObject(banItem);
+        dataOutput.close();
+        String encoded = Base64.getEncoder()
+            .encodeToString(outputStream.toByteArray());
+        logger.trace("bannerMeta:" + encoded);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+
     }
 
     logger.trace("event.useInteractedBlock() == Result.DENY :" + (event.useInteractedBlock()
