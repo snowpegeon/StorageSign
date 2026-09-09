@@ -4,6 +4,7 @@ import static java.util.Map.entry;
 import static org.bukkit.Material.AIR;
 import static org.bukkit.Material.BEEHIVE;
 import static org.bukkit.Material.BEE_NEST;
+import static org.bukkit.Material.COPPER_GOLEM_STATUE;
 import static org.bukkit.Material.ENCHANTED_BOOK;
 import static org.bukkit.Material.END_PORTAL;
 import static org.bukkit.Material.FIREWORK_ROCKET;
@@ -64,7 +65,7 @@ public class StorageSign {
    * block_entity_dataタグが付いて、単純な比較では収納ができないアイテム一覧.
    */
   private static final Set<Material> block_entity_data_Materials = Collections.unmodifiableSet(
-      EnumSet.of(BEE_NEST, BEEHIVE));
+      EnumSet.of(BEE_NEST, BEEHIVE, COPPER_GOLEM_STATUE));
 
   /**
    * SSの中でポーションと扱われるアイテム一覧. ポーション種類が追加されたら追加する.
