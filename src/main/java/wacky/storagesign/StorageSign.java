@@ -4,19 +4,27 @@ import static java.util.Map.entry;
 import static org.bukkit.Material.AIR;
 import static org.bukkit.Material.BEEHIVE;
 import static org.bukkit.Material.BEE_NEST;
+import static org.bukkit.Material.COPPER_GOLEM_STATUE;
 import static org.bukkit.Material.ENCHANTED_BOOK;
 import static org.bukkit.Material.END_PORTAL;
+import static org.bukkit.Material.EXPOSED_COPPER_GOLEM_STATUE;
 import static org.bukkit.Material.FIREWORK_ROCKET;
 import static org.bukkit.Material.GHAST_SPAWN_EGG;
 import static org.bukkit.Material.GREEN_DYE;
 import static org.bukkit.Material.LINGERING_POTION;
 import static org.bukkit.Material.OAK_SIGN;
 import static org.bukkit.Material.OMINOUS_BOTTLE;
+import static org.bukkit.Material.OXIDIZED_COPPER_GOLEM_STATUE;
 import static org.bukkit.Material.POTION;
 import static org.bukkit.Material.RED_DYE;
 import static org.bukkit.Material.SMOOTH_STONE_SLAB;
 import static org.bukkit.Material.SPLASH_POTION;
 import static org.bukkit.Material.STONE_SLAB;
+import static org.bukkit.Material.WAXED_COPPER_GOLEM_STATUE;
+import static org.bukkit.Material.WAXED_EXPOSED_COPPER_GOLEM_STATUE;
+import static org.bukkit.Material.WAXED_OXIDIZED_COPPER_GOLEM_STATUE;
+import static org.bukkit.Material.WAXED_WEATHERED_COPPER_GOLEM_STATUE;
+import static org.bukkit.Material.WEATHERED_COPPER_GOLEM_STATUE;
 import static org.bukkit.Material.WHITE_BANNER;
 import static org.bukkit.Material.YELLOW_DYE;
 import static org.bukkit.Material.matchMaterial;
@@ -65,7 +73,9 @@ public class StorageSign {
    * block_entity_dataタグが付いて、単純な比較では収納ができないアイテム一覧.
    */
   private static final Set<Material> block_entity_data_Materials = Collections.unmodifiableSet(
-      EnumSet.of(BEE_NEST, BEEHIVE));
+      EnumSet.of(BEE_NEST, BEEHIVE, COPPER_GOLEM_STATUE, OXIDIZED_COPPER_GOLEM_STATUE,
+          EXPOSED_COPPER_GOLEM_STATUE, WEATHERED_COPPER_GOLEM_STATUE, WAXED_COPPER_GOLEM_STATUE,
+          WAXED_OXIDIZED_COPPER_GOLEM_STATUE, WAXED_EXPOSED_COPPER_GOLEM_STATUE, WAXED_WEATHERED_COPPER_GOLEM_STATUE));
 
   /**
    * SSの中でポーションと扱われるアイテム一覧. ポーション種類が追加されたら追加する.
